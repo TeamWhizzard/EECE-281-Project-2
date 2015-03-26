@@ -1,0 +1,36 @@
+Rasberry Pi!
+
+Broadcom BCM2835 system-on-ship (SoC) multimedia processor
+
+ARM11 instruction set - this is how processor is able to function at such low power / doesnt need a heat sink - means that rpi is not compatible with PC software which is built with x86 architectures in mind
+ARM11 is designed around instruction set architecture ARMv6 - this means its also not compatible with software developed for ARMv7
+
+(differences between x86 and arm? how does this relate to Arduino?)
+
+RPi runs GNU / Linux
+
+computer USB's cannot supply enough power? - starts running when power is connected, can only be turned off when it is disconnected
+
+Linux - debian recommended because its lightweight - the rasberry pi image includes only a subset of the full software
+
+load GUI: startx <enter>
+
+*use nonprivilaged user account to protect against messing things up, and the internet downloading bad things..
+emergency kernal (non-default) - used when the normal kernal isn't working
+
+*many problems can be traced to inadequete power supply!!  model B takes 5V and 700mA?
+
+WARNING: avoid touching test probes to anything not labelled as a test point - its possible to bridge 5V supply to internal 3.3V which could damage device :(
+
+Boot diagnostics - most common cause of boot fail is a problem with the SD card
+
+Above notes from Raspberry Pi User Guide: http://www.cs.unca.edu/~bruce/Fall14/360/RPiUsersGuide.pdf
+
+RPi GPIO Guide: http://www.raspberrypi.org/documentation/usage/gpio/
+
+Raspberry Pi Setup: http://www.engadget.com/2012/09/04/raspberry-pi-getting-started-guide-how-to/
+
+Raspberry Pi Blink Tutorial: http://www.rpiblog.com/2012/09/using-gpio-of-raspberry-pi-to-blink-led.html
+
+Auto running programs: http://www.raspberry-projects.com/pi/pi-operating-systems/raspbian/auto-running-programs
+Raspberry Pi Camera with Python: http://www.raspberrypi.org/documentation/usage/camera/python/README.md
