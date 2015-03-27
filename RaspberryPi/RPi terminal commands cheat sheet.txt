@@ -1,2 +1,3 @@
 startx - goes to GUI
 sudo raspi-config - goes to configuration menu
+sudo shutdown -r now - restarts rpi

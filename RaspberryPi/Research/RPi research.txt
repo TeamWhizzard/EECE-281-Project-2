@@ -34,3 +34,5 @@ Raspberry Pi Blink Tutorial: http://www.rpiblog.com/2012/09/using-gpio-of-raspbe
 
 Auto running programs: http://www.raspberry-projects.com/pi/pi-operating-systems/raspbian/auto-running-programs
 Raspberry Pi Camera with Python: http://www.raspberrypi.org/documentation/usage/camera/python/README.md
+
+WiFi Setup: http://www.maketecheasier.com/setup-wifi-on-raspberry-pi/
