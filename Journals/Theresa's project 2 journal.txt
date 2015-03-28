@@ -1,0 +1,13 @@
+March 27, 2015
+-got pushbullet
+-installed bash script in rpi to send ip address through pushbullet
+-automated pushbullet script to run on startup
+-connected / tested rpi camera
+-posted message and picture to twitter
+-imgur API
+
+*organize / push rpi code with github **api keys must be in a secret file**
+*next time - create account / post pics to imgur - post to twitter during daily weather report / imgur during every bird shot for sorting
+*get all GPIO components working by end of weekend!
+
+https://github.com/Imgur/imgurpython
