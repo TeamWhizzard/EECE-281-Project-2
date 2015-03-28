@@ -1,28 +1,32 @@
 #include <Wire.h>
 #include "RealTimeClockDS1307.h"
+#include "WString.h"
 
-int date[3];
-int time[3];
+#define RELAY_PIN 3
+
+int day, month, year, hours, minutes, seconds;
 
 void setup() {
 	Serial.begin(9600);
 	RTC.start();
+	pinMode(RELAY_PIN, OUTPUT);
 }
 
 void loop() {
-	RTC.readClock();
 	refreshTime();
-	String dateString = date[0] + "/" + date[1] + "/" + date[2];
-	Serial.println(dateString);
-	delay(5000);
+	if (seconds == 15)
+	digitalWrite(3,HIGH);
+	else if (seconds == 30)
+	digitalWrite(3,LOW);
 }
 
 void refreshTime() {
-	date[0] = RTC.getDate();
-	date[1] = RTC.getMonth();
-	date[2] = RTC.getYear();
+	RTC.readClock();
+	day = RTC.getDate();
+	month = RTC.getMonth();
+	year = RTC.getYear();
 	
-	time[0] = RTC.getHours();
-	time[1] = RTC.getMinutes()
-	time[2] = RTC.getSeconds();
+	hours = RTC.getHours();
+	minutes = RTC.getMinutes();
+	seconds = RTC.getSeconds();
 }
