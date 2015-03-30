@@ -6,8 +6,22 @@ March 27, 2015
 -posted message and picture to twitter
 -imgur API
 
-*organize / push rpi code with github **api keys must be in a secret file**
-*next time - create account / post pics to imgur - post to twitter during daily weather report / imgur during every bird shot for sorting
-*get all GPIO components working by end of weekend!
+March 29, 2015
+-had some problems with unreliable usb cables
+-installed / started using git to back up rpi scripts *can put API keys in here :D*
+-create imgur account - test again to make sure everything works with the access codes
+-gpio pins
+	-note that the T-cobbler must be installed in such an orientation so the white stripe on the wires is on the side closest to the SD card
+	-connected led to see if it would work..
+	-got stevens switchy thing to work
+-milestone: switch->camera->imgur
 
-https://github.com/Imgur/imgurpython
+* get images from imgur to post to twitter
+* arduino to rpi communication
+* post daily weather report to twitter
+
+* documentation / commit code / make things pretty
+
+stevens ftp thing:
+TeamWhizzard
+awesomeWhiz1
