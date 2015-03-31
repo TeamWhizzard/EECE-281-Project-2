@@ -1,0 +1,4 @@
+Tuesday:
+
+link for bilateral communication between Pi and Arduino:
+http://codeandlife.com/2012/07/29/arduino-and-raspberry-pi-serial-communication/
