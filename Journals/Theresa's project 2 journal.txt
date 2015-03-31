@@ -16,12 +16,21 @@ March 29, 2015
 	-got stevens switchy thing to work
 -milestone: switch->camera->imgur
 
-* get images from imgur to post to twitter
-* arduino to rpi communication
+March 30, 2015
+-we wrote stuff. yay
+
+March 31, 2015
+(Anthony not here)
+
+* get images from imgur to post to twitter https://github.com/alexgisby/imgur-album-downloader
+-it should get albums, then when number of files in album is low, send push bullet notification
 * post daily weather report to twitter
+* arduino to rpi communication http://blog.oscarliang.net/raspberry-pi-and-arduino-connected-serial-gpio/
+* booting rpi from halt / sleep mode
 
 * documentation / commit code / make things pretty
 
 stevens ftp thing:
+ftp://teamwhizzard@ubc.dyndns.org/Birdhouse/
 TeamWhizzard
 awesomeWhiz1
