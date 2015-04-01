@@ -18,6 +18,8 @@ extern "C" void __cxa_pure_virtual() {;}
 
 //
 //
+void adc_init();
+uint16_t adc_read(uint8_t ch);
 void refreshTime();
 void setTime();
 int SerialReadPosInt();

@@ -1,22 +1,24 @@
+// AVRDude upload command for reference
+// avrdude -c usbtiny -p m328p -V -U flash:w:powerManagement.hex
+
 #include <Wire.h>
-//#include <Arduino.h>
 #include "RealTimeClockDS1307.h"
 #include "MAX1704.h"
 
 #define RELAY_PIN 5
-//#define TEMPERATURE_PIN A1
-//#define RAIN_PIN A2
 
 MAX1704 fuelGauge;
 
-uint16_t temperature;
 uint16_t isRaining;
+uint16_t temperatureRaw;
+float temperature;
 float batteryLevel;
 int day, month, year, hours, minutes, seconds;
 
 void setup() {
 	Wire.begin();
 	Serial.begin(9600);
+	adc_init();
 	pinMode(RELAY_PIN, OUTPUT);
 	RTC.start();
 	fuelGauge.reset();
@@ -27,16 +29,18 @@ void setup() {
 
 void loop() {
 	// Report Temperature
-	ADMUX=1;
-	temperature = adc_read();
-	temperature = temperature * 0.48828125;
+	adc_read(2); // move the ADC to the LM35
+	delay(10); // delay to allow the reading to settle
+	temperatureRaw = adc_read(2); // take the actual temperature reading we use
+	temperature =  temperatureRaw * 0.48828125;
 	Serial.print("Temperature: ");
 	Serial.println(temperature);
 	delay(100); // allow the ADC to settle
 	
 	// Report if Raining
-	ADMUX=2;
-	isRaining = adc_read();
+	adc_read(3); // move the ADC to the rain sensor
+	delay(10); // delay to allow the reading to settle
+	isRaining = adc_read(3);
 	Serial.print("Rain Value: ");
 	Serial.println(isRaining);
 
@@ -74,6 +78,36 @@ void loop() {
 	// Delay and do it all over again
 	delay(5000);
 	Serial.println("---------");
+}
+
+void adc_init()
+{
+	// AREF = AVcc
+	ADMUX = (1<<REFS0);
+	
+	// ADC Enable and prescaler of 128
+	// 16000000/128 = 125000
+	ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
+}
+
+uint16_t adc_read(uint8_t ch)
+{
+	// select the corresponding channel 0~7
+	// ANDing with ’7? will always keep the value
+	// of ‘ch’ between 0 and 7
+	ch &= 0b00000111;  // AND operation with 7
+	ADMUX = (ADMUX & 0xF8)|ch; // clears the bottom 3 bits before ORing
+	
+	// start single convertion
+	// write ’1? to ADSC
+	ADCSRA |= (1<<ADSC);
+	
+	// wait for conversion to complete
+	// ADSC becomes ’0? again
+	// till then, run loop continuously
+	while(ADCSRA & (1<<ADSC));
+	
+	return (ADC);
 }
 
 void refreshTime() {
