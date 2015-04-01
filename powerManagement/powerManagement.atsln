@@ -1,9 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Atmel Studio Solution File, Format Version 11.00
-Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "powerManagement", "powerManagement.cppproj", "{FCC96CCB-A043-4B61-BC1E-E4C78FA7794E}"
-EndProject
-Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "setClock", "..\setClock\setClock.cppproj", "{5365A5D6-4F8B-4553-B10E-9721CBDBED6C}"
+Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "powerManagement", "powerManagement.cppproj", "{07B459B4-8D76-4638-BC6D-A459BA2D616B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,14 +9,10 @@ Global
 		Release|AVR = Release|AVR
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FCC96CCB-A043-4B61-BC1E-E4C78FA7794E}.Debug|AVR.ActiveCfg = Debug|AVR
-		{FCC96CCB-A043-4B61-BC1E-E4C78FA7794E}.Debug|AVR.Build.0 = Debug|AVR
-		{FCC96CCB-A043-4B61-BC1E-E4C78FA7794E}.Release|AVR.ActiveCfg = Release|AVR
-		{FCC96CCB-A043-4B61-BC1E-E4C78FA7794E}.Release|AVR.Build.0 = Release|AVR
-		{5365A5D6-4F8B-4553-B10E-9721CBDBED6C}.Debug|AVR.ActiveCfg = Debug|AVR
-		{5365A5D6-4F8B-4553-B10E-9721CBDBED6C}.Debug|AVR.Build.0 = Debug|AVR
-		{5365A5D6-4F8B-4553-B10E-9721CBDBED6C}.Release|AVR.ActiveCfg = Release|AVR
-		{5365A5D6-4F8B-4553-B10E-9721CBDBED6C}.Release|AVR.Build.0 = Release|AVR
+		{07B459B4-8D76-4638-BC6D-A459BA2D616B}.Debug|AVR.ActiveCfg = Debug|AVR
+		{07B459B4-8D76-4638-BC6D-A459BA2D616B}.Debug|AVR.Build.0 = Debug|AVR
+		{07B459B4-8D76-4638-BC6D-A459BA2D616B}.Release|AVR.ActiveCfg = Release|AVR
+		{07B459B4-8D76-4638-BC6D-A459BA2D616B}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
