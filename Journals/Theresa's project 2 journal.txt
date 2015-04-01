@@ -19,13 +19,12 @@ March 29, 2015
 March 30, 2015
 -we wrote stuff. yay
 
-March 31, 2015
-(Anthony not here)
-
+March 31, 2015 (Anthony not here)
 -research for power saving
 -organized / wrote rpi game plan
 -organized python files and wrote README.txt
--changed /boot/config.txt file so red rpi camera led does not turn on
+-changed /boot/config.txt file so red rpi camera LED does not turn on
+http://www.raspberrypi-spy.co.uk/2013/05/how-to-disable-the-red-led-on-the-pi-camera-module/
 
 -underclocking - considered this in order to save power when in image mode. However, I found out that most of the power demand is actually from the USB ports. Aditionally, changing the ARM frequency must be done in config.txt which would require a reboot / we cant really do manually.
 There is an "on demand" CPU feature however that adjusts the CPU frequency depending on how busy it is. I set this for good measure. Might help a little..
@@ -35,18 +34,20 @@ http://wiki.stocksy.co.uk/wiki/Raspberry_Pi_Setup#Performance_or_Power_Saving
 and then I currupted everything.. note to self always use shutdown commands :/
 -back to square 1..
 
--hooked up level convertor with Diksha for arduino / rpi communication to make sure we don't break things http://www.adafruit.com/datasheets/txb0108.pdf
+-hooked up level convertor with Diksha to be used for for arduino to rpi communication to make sure we don't break things with voltage. http://www.adafruit.com/datasheets/txb0108.pdf
 
 -fixed everything from before corruption / added usb shutdown scripts (needs testing for tomorrow)
 
 April 1, 2015
 TODO:
 -test main_images script
--test that camera led is turning off ect
+-test that camera led is turning off (else try controlling via python? see tutorial)
 -test / integrate with usb_startup / shutdown scripts
--get arduino communication working
--add shutdown command to main_images
--get startup script working
+-get arduino communication working http://blog.oscarliang.net/raspberry-pi-and-arduino-connected-serial-gpio/
+python serial - http://pyserial.sourceforge.net/
+-add shutdown command to main_images ( on message recieved from arduino)
+-get main_switchScript working 
+-add more report documentation at some point
 
 Game plan:
 *ALWAYS USE THE SHUTDOWN COMMANDS*

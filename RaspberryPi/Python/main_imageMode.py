@@ -4,6 +4,7 @@ import time
 import RPi.GPIO as GPIO
 import picamera
 from datetime import datetime
+# import os
 
 pinBirdSensor = 5 # GPIO pin
 
@@ -21,4 +22,5 @@ while (True): #GPIO.output(5,True) ## Turn on GPIO pin 5
     photo_name = "images/cameraImages/" + now + '.jpg'
     camera.capture(photo_name)
 
-# if not using infinite loop, call camera.close() at end of usage to conserve resources
+# camera.close() # conserve resources
+# os.system("sudo shutdown -h now") # shutdown system safely
