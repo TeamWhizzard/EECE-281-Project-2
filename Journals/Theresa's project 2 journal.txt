@@ -22,15 +22,47 @@ March 30, 2015
 March 31, 2015
 (Anthony not here)
 
-* get images from imgur to post to twitter https://github.com/alexgisby/imgur-album-downloader
--it should get albums, then when number of files in album is low, send push bullet notification
-* post daily weather report to twitter
-* arduino to rpi communication http://blog.oscarliang.net/raspberry-pi-and-arduino-connected-serial-gpio/
-* booting rpi from halt / sleep mode
+-research for power saving
+-organized / wrote rpi game plan
+-organized python files and wrote README.txt
+-changed /boot/config.txt file so red rpi camera led does not turn on
 
-* documentation / commit code / make things pretty
+-underclocking - considered this in order to save power when in image mode. However, I found out that most of the power demand is actually from the USB ports. Aditionally, changing the ARM frequency must be done in config.txt which would require a reboot / we cant really do manually.
+There is an "on demand" CPU feature however that adjusts the CPU frequency depending on how busy it is. I set this for good measure. Might help a little..
+See the Power Saving section of this document:
+http://wiki.stocksy.co.uk/wiki/Raspberry_Pi_Setup#Performance_or_Power_Saving
 
-stevens ftp thing:
-ftp://teamwhizzard@ubc.dyndns.org/Birdhouse/
-TeamWhizzard
-awesomeWhiz1
+and then I currupted everything.. note to self always use shutdown commands :/
+-back to square 1..
+
+-hooked up level convertor with Diksha for arduino / rpi communication to make sure we don't break things http://www.adafruit.com/datasheets/txb0108.pdf
+
+-fixed everything from before corruption / added usb shutdown scripts (needs testing for tomorrow)
+
+April 1, 2015
+TODO:
+-test main_images script
+-test that camera led is turning off ect
+-test / integrate with usb_startup / shutdown scripts
+-get arduino communication working
+-add shutdown command to main_images
+-get startup script working
+
+Game plan:
+*ALWAYS USE THE SHUTDOWN COMMANDS*
+
+* for now, wifi is always on so we can ssh
+
+* script on startup to determine which thing to run? -recieve time from arduino
+-arduino to rpi communication http://blog.oscarliang.net/raspberry-pi-and-arduino-connected-serial-gpio/
+
+* write commands for when turned on to post weather report
+-connect to wifi
+-post local album pics from last 24 hours to imgur
+- get sorted images from imgur to post to twitter https://github.com/alexgisby/imgur-album-downloader
+-it should get album, then when number of files in album is low, send push bullet notification
+- get weather data from gpio pins
+- post daily weather report with image to twitter
+- readjust clock (send time to arduino)
+
+* third maintenance mode signal from arduino to be able to SSH and modify stuff
