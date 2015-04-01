@@ -19,9 +19,13 @@ extern "C" void __cxa_pure_virtual() {;}
 //
 //
 void refreshTime();
+void setTime();
+int SerialReadPosInt();
 
 #include "c:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\standard\pins_arduino.h" 
 #include "c:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\arduino.h"
 #include <powerManagement.ino>
+#include <MAX1704.cpp>
+#include <MAX1704.h>
 #include <RealTimeClockDS1307.cpp>
 #include <RealTimeClockDS1307.h>
