@@ -8,7 +8,7 @@
 	# run image script
 
 # if weather report time
-	# turn on usb hub and wait for wifi connection
+	# wait for wifi connection (usb hub turns on automatically)
 	# run weather station script
 
 # if some other command
