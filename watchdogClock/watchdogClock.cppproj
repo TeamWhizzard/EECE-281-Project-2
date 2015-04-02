@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>6.2</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.CPP</ToolchainName>
-    <ProjectGuid>{07b459b4-8d76-4638-bc6d-a459ba2d616b}</ProjectGuid>
+    <ProjectGuid>{fba7b565-bcef-4077-a48d-5adcdcd27e1c}</ProjectGuid>
     <avrdevice>atmega328p</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
@@ -12,32 +12,33 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>powerManagement</AssemblyName>
-    <Name>powerManagement</Name>
-    <RootNamespace>powerManagement</RootNamespace>
+    <AssemblyName>watchdogClock</AssemblyName>
+    <Name>watchdogClock</Name>
+    <RootNamespace>watchdogClock</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
-    <OverrideVtorValue>exception_table</OverrideVtorValue>
+    <OverrideVtorValue>
+    </OverrideVtorValue>
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <ProgFlashFromRam>true</ProgFlashFromRam>
     <RamSnippetAddress>0x20000000</RamSnippetAddress>
     <CacheFlash>true</CacheFlash>
     <UncachedRange />
     <BootSegment>0</BootSegment>
-    <AsfFrameworkConfig>
-      <framework-data>
-        <options />
-        <configurations />
-        <files />
-        <documentation help="" />
-        <offline-documentation help="" />
-        <dependencies>
-          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.10.1" />
-        </dependencies>
-      </framework-data>
-    </AsfFrameworkConfig>
     <preserveEEPROM>true</preserveEEPROM>
+    <AsfFrameworkConfig>
+      <framework-data xmlns="">
+  <options />
+  <configurations />
+  <files />
+  <documentation help="" />
+  <offline-documentation help="" />
+  <dependencies>
+    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.22.0" />
+  </dependencies>
+</framework-data>
+    </AsfFrameworkConfig>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -72,7 +73,7 @@
       <Value>c:/Program Files (x86)/Arduino/libraries</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire/utility</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire</Value>
-      <Value>../../powerManagement</Value>
+      <Value>../../watchdogClock</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/variants/standard</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino</Value>
     </ListValues>
@@ -107,7 +108,7 @@
       <Value>c:/Program Files (x86)/Arduino/libraries</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire/utility</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire</Value>
-      <Value>../../powerManagement</Value>
+      <Value>../../watchdogClock</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/variants/standard</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino</Value>
     </ListValues>
@@ -120,7 +121,7 @@
   <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
 </AvrGccCpp>
     </ToolchainSettings>
-    <VMSETTING_IncludePaths>c:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino;c:/Program Files (x86)/Arduino/hardware/arduino/avr/variants/standard;../../powerManagement;c:/Program Files (x86)/Arduino/libraries;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries;C:/Program Files (x86)/Visual Micro/Visual Micro for Arduino/Micro Platforms/default/debuggers;C:/Users/Steven/Documents/Arduino/libraries;c:/program files (x86)/arduino/hardware/tools/avr/avr/include/;c:/program files (x86)/arduino/hardware/tools/avr/avr/include/avr/;c:/program files (x86)/arduino/hardware/tools/avr/avr/;c:/program files (x86)/arduino/hardware/tools/avr/lib/gcc/avr/4.8.1/include/;;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire/utility;</VMSETTING_IncludePaths>
+    <VMSETTING_IncludePaths>c:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino;c:/Program Files (x86)/Arduino/hardware/arduino/avr/variants/standard;../../watchdogClock;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire/utility;c:/Program Files (x86)/Arduino/libraries;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries;C:/Program Files (x86)/Visual Micro/Visual Micro for Arduino/Micro Platforms/default/debuggers;C:/Users/Steven/Documents/Arduino/libraries;c:/program files (x86)/arduino/hardware/tools/avr/avr/include/;c:/program files (x86)/arduino/hardware/tools/avr/avr/include/avr/;c:/program files (x86)/arduino/hardware/tools/avr/avr/;c:/program files (x86)/arduino/hardware/tools/avr/lib/gcc/avr/4.8.1/include/;;</VMSETTING_IncludePaths>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
@@ -155,7 +156,7 @@
       <Value>c:/Program Files (x86)/Arduino/libraries</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire/utility</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire</Value>
-      <Value>../../powerManagement</Value>
+      <Value>../../watchdogClock</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/variants/standard</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino</Value>
     </ListValues>
@@ -190,7 +191,7 @@
       <Value>c:/Program Files (x86)/Arduino/libraries</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire/utility</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire</Value>
-      <Value>../../powerManagement</Value>
+      <Value>../../watchdogClock</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/variants/standard</Value>
       <Value>c:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino</Value>
     </ListValues>
@@ -203,32 +204,24 @@
   <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
 </AvrGccCpp>
     </ToolchainSettings>
-    <VMSETTING_IncludePaths>c:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino;c:/Program Files (x86)/Arduino/hardware/arduino/avr/variants/standard;../../powerManagement;c:/Program Files (x86)/Arduino/libraries;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries;C:/Program Files (x86)/Visual Micro/Visual Micro for Arduino/Micro Platforms/default/debuggers;C:/Users/Steven/Documents/Arduino/libraries;c:/program files (x86)/arduino/hardware/tools/avr/avr/include/;c:/program files (x86)/arduino/hardware/tools/avr/avr/include/avr/;c:/program files (x86)/arduino/hardware/tools/avr/avr/;c:/program files (x86)/arduino/hardware/tools/avr/lib/gcc/avr/4.8.1/include/;;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire/utility;</VMSETTING_IncludePaths>
+    <VMSETTING_IncludePaths>c:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino;c:/Program Files (x86)/Arduino/hardware/arduino/avr/variants/standard;../../watchdogClock;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire/utility;c:/Program Files (x86)/Arduino/libraries;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries;C:/Program Files (x86)/Visual Micro/Visual Micro for Arduino/Micro Platforms/default/debuggers;C:/Users/Steven/Documents/Arduino/libraries;c:/program files (x86)/arduino/hardware/tools/avr/avr/include/;c:/program files (x86)/arduino/hardware/tools/avr/avr/include/avr/;c:/program files (x86)/arduino/hardware/tools/avr/avr/;c:/program files (x86)/arduino/hardware/tools/avr/lib/gcc/avr/4.8.1/include/;;</VMSETTING_IncludePaths>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="powerManagement.ino">
+    <Compile Include="RTClib.cpp">
       <SubType>compile</SubType>
-    </None>
+    </Compile>
+    <Compile Include="RTClib.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Visual Micro\.watchdogClock.vsarduino.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="watchdogClock.ino">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Visual Micro\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="MAX1704.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="MAX1704.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="RealTimeClockDS1307.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="RealTimeClockDS1307.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Visual Micro\.powerManagement.vsarduino.h">
-      <SubType>compile</SubType>
-    </Compile>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

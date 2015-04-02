@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Atmel Studio Solution File, Format Version 11.00
 Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "powerManagement", "powerManagement.cppproj", "{07B459B4-8D76-4638-BC6D-A459BA2D616B}"
 EndProject
+Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "watchdogClock", "..\watchdogClock\watchdogClock.cppproj", "{FBA7B565-BCEF-4077-A48D-5ADCDCD27E1C}"
+EndProject
+Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "powerTests", "..\..\..\Arduino\powerTests\powerTests.cppproj", "{97394FA9-C07E-42E5-BE8F-424988AFF9A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR
@@ -13,6 +17,14 @@ Global
 		{07B459B4-8D76-4638-BC6D-A459BA2D616B}.Debug|AVR.Build.0 = Debug|AVR
 		{07B459B4-8D76-4638-BC6D-A459BA2D616B}.Release|AVR.ActiveCfg = Release|AVR
 		{07B459B4-8D76-4638-BC6D-A459BA2D616B}.Release|AVR.Build.0 = Release|AVR
+		{FBA7B565-BCEF-4077-A48D-5ADCDCD27E1C}.Debug|AVR.ActiveCfg = Debug|AVR
+		{FBA7B565-BCEF-4077-A48D-5ADCDCD27E1C}.Debug|AVR.Build.0 = Debug|AVR
+		{FBA7B565-BCEF-4077-A48D-5ADCDCD27E1C}.Release|AVR.ActiveCfg = Release|AVR
+		{FBA7B565-BCEF-4077-A48D-5ADCDCD27E1C}.Release|AVR.Build.0 = Release|AVR
+		{97394FA9-C07E-42E5-BE8F-424988AFF9A1}.Debug|AVR.ActiveCfg = Debug|AVR
+		{97394FA9-C07E-42E5-BE8F-424988AFF9A1}.Debug|AVR.Build.0 = Debug|AVR
+		{97394FA9-C07E-42E5-BE8F-424988AFF9A1}.Release|AVR.ActiveCfg = Release|AVR
+		{97394FA9-C07E-42E5-BE8F-424988AFF9A1}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
