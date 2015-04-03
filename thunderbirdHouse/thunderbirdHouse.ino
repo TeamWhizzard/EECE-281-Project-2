@@ -17,8 +17,13 @@ MAX1704 fuelGauge;
 #define RELAY_PIN 5
 #define CLOCK_POWER 9
 #define BATTERY_THRESHOLD 20
+#define SLEEP_FOR_30 4
 
 uint16_t lastRainVal = 1023;
+float batteryLevel;
+float temperature;
+volatile bool rpiBooting;
+
 uint8_t sunriseHour = 6;
 uint8_t sunriseMinute = 30;
 uint8_t sunsetHour = 20;
@@ -101,11 +106,14 @@ uint16_t adc_read(uint8_t ch)
 * Sleep Control Function
 *------------------------------------------------------------------------------------------
 */
-void sleep_cycle(DateTime now, int h, int s) {
-  now.hour();
-
-  for (int i = 0; i < 8; i++)
+void sleep_cycle(int delayVal) {
+  for (int i = 0; i < delayVal; i++)
     myWatchdogEnable ();
+}
+
+void napTime() {
+  while (rpiBooting)
+    sleep_cycle(1);
 }
 
 /*
@@ -113,38 +121,44 @@ void sleep_cycle(DateTime now, int h, int s) {
 * Sensor Functions
 *------------------------------------------------------------------------------------------
 */
-// Report battery level
-float getBatteryLevel() {
-  float batteryLevel = fuelGauge.stateOfCharge();
+//Refreshes all the values from each sensor
+void refreshSensors() {
+  printTime();
 
+  getBatteryLevel();
   Serial.print("Battery: ");
   Serial.println(batteryLevel);
 
-  return batteryLevel;
-}
-
-// Report temperature
-float getTemperature() {
-  adc_read(2); // move the ADC to the LM35
-  delay(10); // delay to allow the reading to settle
-  uint16_t temperatureRaw = adc_read(2); // take the actual temperature reading we use
-  float temperature =  temperatureRaw * 0.48828125;
-
+  getTemperature();
   Serial.print("Temperature: ");
   Serial.println(temperature);
 
+  if (checkForRain() == false)
+    Serial.println("Clear Skies");
+  else
+    Serial.println("Rain");
+  Serial.println("");
+}
+
+// Report battery level
+void getBatteryLevel() {
+  batteryLevel = fuelGauge.stateOfCharge();
+}
+
+// Report temperature
+void getTemperature() {
+  adc_read(2); // move the ADC to the LM35
+  delay(10); // delay to allow the reading to settle
+  uint16_t temperatureRaw = adc_read(2); // take the actual temperature reading we use
+  temperature =  temperatureRaw * 0.48828125;
   delay(100); // allow the ADC to settle
-  return temperature;
 }
 
 // Report if raining
-bool checkIsRaining() {
+bool checkForRain() {
   adc_read(3); // move the ADC to the rain sensor
   delay(10); // delay to allow the reading to settle
   uint16_t newRainVal = adc_read(3);
-
-  Serial.print("Rain Value: ");
-  Serial.println(newRainVal);
 
   if (newRainVal < 900 && newRainVal < lastRainVal + 300) {
     lastRainVal = newRainVal;
@@ -173,6 +187,10 @@ void printTime() {
   delay(1000);
 }
 
+void rpiBooted() {
+  rpiBooting = false;
+}
+
 /*
 *------------------------------------------------------------------------------------------
 * Setup Function
@@ -182,12 +200,14 @@ void setup()
 {
   RTC.begin();  // activate clock (doesn't do much)
   Serial.begin(9600);
+  attachInterrupt(3, rpiBooted, RISING);
   adc_init();
   pinMode(RELAY_PIN, OUTPUT);
   fuelGauge.reset();
   fuelGauge.quickStart();
   fuelGauge.showConfig();
-  delay(1000);
+  delay(5000); // delay for bluetooth pairing
+  refreshSensors();
 }  // end of setup
 
 /*
@@ -230,27 +250,16 @@ void loop()
 
   printTime();
   if (DEMO_MODE) {
-    float batteryLevel = getBatteryLevel();
-    if (batteryLevel >= BATTERY_THRESHOLD) {
-      if (now.minute() % 2) {
-        
-        digitalWrite(5, HIGH);
-        float temperature = getTemperature();
-        
-        if (checkIsRaining() == false) {
-          Serial.println("I'm awake");
-        }
-        else
-          Serial.println("Time for bed");
-          
-      }
-      else {
-        Serial.println("Time for bed");
-      }
-    }
+    digitalWrite(5, HIGH);
+    rpiBooting = true;
+    refreshSensors();
 
-    else {
-      Serial.println("Time for bed");
+    if (batteryLevel >= BATTERY_THRESHOLD) {
+    //wake up rasberry pi
+    napTime();
+    rpiBooting = true;
+    //talking to rasberry pi
+    napTime();
     }
   }
 
