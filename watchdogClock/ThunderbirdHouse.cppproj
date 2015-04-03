@@ -13,7 +13,7 @@
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
     <AssemblyName>watchdogClock</AssemblyName>
-    <Name>watchdogClock</Name>
+    <Name>ThunderbirdHouse</Name>
     <RootNamespace>watchdogClock</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
@@ -29,15 +29,15 @@
     <preserveEEPROM>true</preserveEEPROM>
     <AsfFrameworkConfig>
       <framework-data xmlns="">
-  <options />
-  <configurations />
-  <files />
-  <documentation help="" />
-  <offline-documentation help="" />
-  <dependencies>
-    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.22.0" />
-  </dependencies>
-</framework-data>
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.22.0" />
+        </dependencies>
+      </framework-data>
     </AsfFrameworkConfig>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -207,6 +207,12 @@
     <VMSETTING_IncludePaths>c:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino;c:/Program Files (x86)/Arduino/hardware/arduino/avr/variants/standard;../../watchdogClock;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries/Wire/utility;c:/Program Files (x86)/Arduino/libraries;c:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries;C:/Program Files (x86)/Visual Micro/Visual Micro for Arduino/Micro Platforms/default/debuggers;C:/Users/Steven/Documents/Arduino/libraries;c:/program files (x86)/arduino/hardware/tools/avr/avr/include/;c:/program files (x86)/arduino/hardware/tools/avr/avr/include/avr/;c:/program files (x86)/arduino/hardware/tools/avr/avr/;c:/program files (x86)/arduino/hardware/tools/avr/lib/gcc/avr/4.8.1/include/;;</VMSETTING_IncludePaths>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="MAX1704.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="MAX1704.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="RTClib.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -216,7 +222,7 @@
     <Compile Include="Visual Micro\.watchdogClock.vsarduino.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="watchdogClock.ino">
+    <Compile Include="thunderbirdHouse.ino">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

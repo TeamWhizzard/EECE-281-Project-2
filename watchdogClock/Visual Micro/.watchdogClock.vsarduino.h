@@ -17,12 +17,20 @@
 extern "C" void __cxa_pure_virtual() {;}
 
 void myWatchdogEnable();
+void adc_init();
+uint16_t adc_read(uint8_t ch);
+void sleep_cycle(DateTime now, int h, int s);
+float getBatteryLevel();
+float getTemperature();
+bool checkIsRaining();
+void printTime();
 //
 //
-void sleep_cycle();
 
 #include "c:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\standard\pins_arduino.h" 
 #include "c:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\arduino.h"
-#include <watchdogClock.ino>
+#include <thunderbirdHouse.ino>
+#include <MAX1704.cpp>
+#include <MAX1704.h>
 #include <RTClib.cpp>
 #include <RTClib.h>
