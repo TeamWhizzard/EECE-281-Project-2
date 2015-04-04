@@ -219,8 +219,8 @@ String stringCreate() {
 
 void rpiAtmegaDataTransfer(){
   String sensorInfo = stringCreate();
-  Serial.println(sensorInfo); // sends updated sensor readings to the rasberry pi
-  mySerial.println(sensorInfo); // prints the sensor message that is sent to the rasberry pi to the serial monitor
+  Serial.println(sensorInfo); // sends updated sensor readings to the raspberry pi
+  mySerial.println(sensorInfo); // prints the sensor message that is sent to the raspberry pi to the serial monitor
 }
 
 void rpiBooted() {
@@ -235,7 +235,7 @@ void rpiBooted() {
 void setup()
 {
   RTC.begin();  // activate clock (doesn't do much)
-  Serial.begin(9600); // rasberry pi and atmega328p communication
+  Serial.begin(9600); // raspberry pi and atmega328p communication
   mySerial.begin(9600); // bluetooth communication
   attachInterrupt(RPI_INTERRUPT_PIN, rpiBooted, RISING);
   adc_init();
@@ -259,10 +259,10 @@ void loop()
     printSensorInfo();
 
     if (batteryLevel >= BATTERY_THRESHOLD) {
-      //wake up rasberry pi
+      //wake up raspberry pi
       napTime();
       rpiBooting = true;
-      rpiAtmegaDataTransfer(); // talking to rasberry pi
+      rpiAtmegaDataTransfer(); // talking to raspberry pi
       napTime();
     }
     
