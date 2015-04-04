@@ -1,9 +1,10 @@
 /*
 *------------------------------------------------------------------------------------------
-* Libraries / _____ / Defined Values / Global Variables
+* Libraries / Objects / Defined Values / Global Variables
 *------------------------------------------------------------------------------------------
 */
 #include <Wire.h>
+#include <SoftwareSerial.h>
 #include "RTClib.h"
 #include "MAX1704.h"
 
@@ -12,16 +13,20 @@
 
 RTC_DS1307 RTC;
 MAX1704 fuelGauge;
+SoftwareSerial mySerial(12, 13); // RX, TX
 
 #define DEMO_MODE 1
+#define RPI_INTERRUPT_PIN 3
 #define RELAY_PIN 5
 #define CLOCK_POWER 9
 #define BATTERY_THRESHOLD 20
 #define SLEEP_FOR_30 4
+#define HIBERNATE 2700 // sleep
 
 uint16_t lastRainVal = 1023;
 float batteryLevel;
 float temperature;
+bool rainStatus;
 volatile bool rpiBooting;
 
 uint8_t sunriseHour = 6;
@@ -123,21 +128,36 @@ void napTime() {
 */
 //Refreshes all the values from each sensor
 void refreshSensors() {
-  printTime();
-
   getBatteryLevel();
-  Serial.print("Battery: ");
-  Serial.println(batteryLevel);
-
   getTemperature();
-  Serial.print("Temperature: ");
-  Serial.println(temperature);
+  rainStatus = checkForRain();
+}
 
-  if (checkForRain() == false)
-    Serial.println("Clear Skies");
+//Prints updated sensor data to the serial monitor via bluetooth
+void printSensorInfo() {
+  // activate I2C
+  Wire.begin();
+  refreshSensors();
+    printTime();
+
+  mySerial.print("Battery: ");
+  mySerial.println(batteryLevel);
+
+  mySerial.print("Temperature: ");
+  mySerial.println(temperature);
+
+  if (rainStatus == false)
+    mySerial.println("Clear Skies");
   else
-    Serial.println("Rain");
-  Serial.println("");
+    mySerial.println("Rain");
+
+  mySerial.println("");
+
+  // turn off I2C
+  TWCR &= ~(bit(TWEN) | bit(TWIE) | bit(TWEA));
+  // turn off I2C pull-ups
+  digitalWrite (A4, LOW);
+  digitalWrite (A5, LOW);
 }
 
 // Report battery level
@@ -160,7 +180,7 @@ bool checkForRain() {
   delay(10); // delay to allow the reading to settle
   uint16_t newRainVal = adc_read(3);
 
-  if (newRainVal < 900 && newRainVal < lastRainVal + 300) {
+  if (newRainVal < 900 && newRainVal < lastRainVal + 200) {
     lastRainVal = newRainVal;
     return true;
   }
@@ -172,19 +192,35 @@ bool checkForRain() {
 
 void printTime() {
   DateTime now = RTC.now();
-  Serial.print(now.year(), DEC);
-  Serial.print('/');
-  Serial.print(now.month(), DEC);
-  Serial.print('/');
-  Serial.print(now.day(), DEC);
-  Serial.print(' ');
-  Serial.print(now.hour(), DEC);
-  Serial.print(':');
-  Serial.print(now.minute(), DEC);
-  Serial.print(':');
-  Serial.print(now.second(), DEC);
-  Serial.println();
+  mySerial.print(now.year(), DEC);
+  mySerial.print('/');
+  mySerial.print(now.month(), DEC);
+  mySerial.print('/');
+  mySerial.print(now.day(), DEC);
+  mySerial.print(' ');
+  mySerial.print(now.hour(), DEC);
+  mySerial.print(':');
+  mySerial.print(now.minute(), DEC);
+  mySerial.print(':');
+  mySerial.print(now.second(), DEC);
+  mySerial.println();
   delay(1000);
+}
+
+String stringCreate() {
+  refreshSensors();
+  String rain = String(rainStatus);
+  String batt = String(batteryLevel);
+  String temp = String(temperature);
+  
+  String message = rain + "," + batt + "," + temp;
+  return message;
+}
+
+void rpiAtmegaDataTransfer(){
+  String sensorInfo = stringCreate();
+  Serial.println(sensorInfo); // sends updated sensor readings to the rasberry pi
+  mySerial.println(sensorInfo); // prints the sensor message that is sent to the rasberry pi to the serial monitor
 }
 
 void rpiBooted() {
@@ -199,15 +235,15 @@ void rpiBooted() {
 void setup()
 {
   RTC.begin();  // activate clock (doesn't do much)
-  Serial.begin(9600);
-  attachInterrupt(3, rpiBooted, RISING);
+  Serial.begin(9600); // rasberry pi and atmega328p communication
+  mySerial.begin(9600); // bluetooth communication
+  attachInterrupt(RPI_INTERRUPT_PIN, rpiBooted, RISING);
   adc_init();
   pinMode(RELAY_PIN, OUTPUT);
   fuelGauge.reset();
   fuelGauge.quickStart();
   fuelGauge.showConfig();
   delay(5000); // delay for bluetooth pairing
-  refreshSensors();
 }  // end of setup
 
 /*
@@ -217,67 +253,38 @@ void setup()
 */
 void loop()
 {
-
-  // power up clock chip
-  //  digitalWrite (CLOCK_POWER, HIGH);
-  //  pinMode (CLOCK_POWER, OUTPUT);
-
-  // activate I2C
-  Wire.begin();
-
-  // find the time
-  DateTime now = RTC.now();
-
-  // time now available in now.hour(), now.minute() etc.
-
-  // finished with clock
-  //  pinMode (CLOCK_POWER, INPUT);
-  //  digitalWrite (CLOCK_POWER, LOW);
-
-  // turn off I2C
-  TWCR &= ~(bit(TWEN) | bit(TWIE) | bit(TWEA));
-
-  // turn off I2C pull-ups
-  digitalWrite (A4, LOW);
-  digitalWrite (A5, LOW);
-
-  // Do something every odd minute
-  if (now.minute() % 2) {
-    digitalWrite(5, HIGH);
-  } else {
-    digitalWrite(5, LOW);
-  }
-
-  printTime();
   if (DEMO_MODE) {
     digitalWrite(5, HIGH);
     rpiBooting = true;
-    refreshSensors();
+    printSensorInfo();
 
     if (batteryLevel >= BATTERY_THRESHOLD) {
-    //wake up rasberry pi
-    napTime();
-    rpiBooting = true;
-    //talking to rasberry pi
-    napTime();
+      //wake up rasberry pi
+      napTime();
+      rpiBooting = true;
+      rpiAtmegaDataTransfer(); // talking to rasberry pi
+      napTime();
     }
+    
+    else
+      sleep_cycle(HIBERNATE); // battery low, atmega328p is put to sleep for 6 hours then battery level is checked again
   }
 
   /*Code for future development to run birdhouse in full outdoor mode
 
-    else {
-      // Check if weekday
-      if (now.dayOfWeek() <= 5) {
-        // Check if daytime
-        if ((now.hour() > sunriseHour && now.hour() < sunsetHour) || ((now.hour() == sunriseHour && now.minute() >= sunriseMinute) || (now.hour() == sunsetHour && now.minute() <= sunsetMinute)))
+      else {
+        // Check if weekday
+        if (now.dayOfWeek() <= 5) {
+          // Check if daytime
+          if ((now.hour() > sunriseHour && now.hour() < sunsetHour) || ((now.hour() == sunriseHour && now.minute() >= sunriseMinute) || (now.hour() == sunsetHour && now.minute() <= sunsetMinute)))
 
-        else {
+          else {
+
+          }
+
+          // it is night time so sleep a hella lot
 
         }
-
-        // it is night time so sleep a hella lot
-
       }
-    }
-  */
+    */
 }
