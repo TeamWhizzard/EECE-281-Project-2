@@ -4,13 +4,17 @@ ip_pushbullet_startup.py - runs an infinate loop on startup waiting for WiFi con
 
 ip_pushbullet_sub.sh - bash script sends IP address of RPi via PushBullet for SSH.
 
-main_switchScript.py - runs on startup. Recieves date/time from Arduino and runs camera or weather mode depending on the time of day.
+main_switchScript.py - runs on startup. Recieves weather data from Arduino and uploads the report to twitter. It also takes camera snapshots if it is not raining.
 
 main_imageMode.py - image mode runs until message is recieved from the Arduino for the system to shut off. Script waits for the bird sensor to be triggered and takes an images with the camera, storing it locally in /images/cameraImages/.
 
-main_weatherStation.py - connects to WiFi and uploads local pictures from the previous day in /images/cameraImages/ to Imgur. Script then downloads sorted images from Imgur into /images/twitImages/. The weather data from Arduino is then formatted into a report and posted to twitter.
+main_weatherStation.py - connects to WiFi and calls ftp_images.py to sort camera images. The weather data from Arduino is then formatted into a report and posted to twitter.
+
+ftp_images.py - synch's RPI camera images with Birdhouse FTP server, allowing for manual sorting.
 
 usb_shutdown.sh - script to disable USB for power conservation.
+
+usb_startup.sh - script to enable USB for wifi connection.
 
 --------------------
 /images/ directories:
@@ -18,3 +22,8 @@ usb_shutdown.sh - script to disable USB for power conservation.
 /images/cameraImages/ - stores local images from past 24 hours before they are uploaded to Imgur.
 
 /images/twitImages/ - stores sorted images from Imgur to be used in twitter updates.
+
+--------------------
+/codeReferences/ directory:
+
+- outdated or test scripts used for code reference.

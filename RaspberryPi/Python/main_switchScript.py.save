@@ -3,6 +3,7 @@
 import serial
 import subprocess
 import urllib2
+import RPi.GPIO as GPIO
 
 # custom scripts
 import main_imageMode
@@ -17,13 +18,13 @@ usbOn = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/usb_startup.sh"
 ser = serial.Serial('/dev/ttyAMA0', 115200) #, timeout=1)
 ser.open() 
 
-# initialize interrupt pin
+# initialize GPIO pin to interrupt Arduino from sleep mode
 pinInterrupt = 10
-GPIO.setup(pinInterrupt, GPIO.out)
+GPIO.setup(pinInterrupt, GPIO.OUT) # Setup GPIO Pin 5 OUT
 
 while True: # read from serial port until command recieved
 	input = ser.readline()
-	print(input + "\n") # for testing
+	print(rain + "\n") # for testing
 		
 	data = input.split(",")
 	if (data[0] is "1" or "0"): # Arduino requested image mode
@@ -44,7 +45,7 @@ while True: # read from serial port until command recieved
 				time.sleep(0.5) # sleep time in seconds
 			else: # wifi is connected
 				temperature = ser.readline()
-				main_weatherStation.weatherStation(data[0], data[2])
+				main_weatherStation.weatherStation(data[0], tem)
 				break
 
 		GPIO.output(pinInterrupt, True) # send shutdown signal to Arduino
