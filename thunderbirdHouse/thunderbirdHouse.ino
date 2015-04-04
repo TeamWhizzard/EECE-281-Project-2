@@ -18,7 +18,7 @@ MAX1704 fuelGauge;
 SoftwareSerial mySerial(12, 13); // RX, TX
 
 #define DEMO_MODE 1
-#define RPI_INTERRUPT_PIN 1
+#define RPI_INTERRUPT 1
 #define PI_POWER_PIN 5
 #define CLOCK_POWER 9
 #define BATTERY_THRESHOLD 20
@@ -120,24 +120,20 @@ void sleep_cycle(int delayVal) {
 
 void startPi() {
   digitalWrite(PI_POWER_PIN, HIGH); // wake up raspberry pi
-  //setupInterrupt();
-  //piDelay = true;
-  //napTime();
+  piDelay = true;
+  napTime();
 }
 
 void waitForPi() {
-  //setupInterrupt();
-  //  piDelay = true;
-  //  napTime();
-  sleep_cycle(8);
-  rpiAtmegaDataTransfer(); // talking to raspberry pi
   Serial.println("Can you hear me?");
   mySerial.println("Can you hear me?");
+  piDelay = true;
+  napTime();
 }
 
 void shutdownPi() {
-  napTime();
   sleep_cycle(3);
+  mySerial.println("attempted to turn of RPI");
   digitalWrite(PI_POWER_PIN, LOW); // cut off power to raspberry pi
 }
 
@@ -153,15 +149,22 @@ void napTime() {
 */
 //Refreshes all the values from each sensor
 void refreshSensors() {
+  // activate I2C
+  Wire.begin();
+
   getBatteryLevel();
   getTemperature();
   rainStatus = checkForRain();
+
+  // turn off I2C
+  TWCR &= ~(bit(TWEN) | bit(TWIE) | bit(TWEA));
+  // turn off I2C pull-ups
+  digitalWrite (A4, LOW);
+  digitalWrite (A5, LOW);
 }
 
 //Prints updated sensor data to the serial monitor via bluetooth
 void printSensorInfo() {
-  // activate I2C
-  Wire.begin();
   refreshSensors();
   printTime();
 
@@ -177,12 +180,6 @@ void printSensorInfo() {
     mySerial.println("Rain");
 
   mySerial.println("");
-
-  // turn off I2C
-  TWCR &= ~(bit(TWEN) | bit(TWIE) | bit(TWEA));
-  // turn off I2C pull-ups
-  digitalWrite (A4, LOW);
-  digitalWrite (A5, LOW);
 }
 
 // Report battery level
@@ -254,24 +251,9 @@ void rpiAtmegaDataTransfer() {
 *------------------------------------------------------------------------------------------
 */
 void rpiInterrupt() {
-  piDelay = false;
+  if (millis() > 12000)
+    piDelay = false;
 }
-
-//void setupInterrupt() {
-//  DDRB  = 0b11111111;   // All outputs
-//  DDRC  = 0b01111111;   // All outputs (Although we will just use PC0 and PC1)
-//  DDRD  = 0b11111011;   // set PD2 to input
-//  PORTD = 0b00000100;   // set PD2 to high
-//
-//  EIMSK |= (1 << INT0);     // Turns on INT0
-//  EICRA |= (1 << ISC01);    // set INT0 to trigger on ANY logic change
-//
-//  sei();                    // turn on interrupts
-//}
-//
-//ISR (SIG_INTERRUPT0) {
-//  piDelay = false;
-//}
 
 /*
 *------------------------------------------------------------------------------------------
@@ -283,7 +265,7 @@ void setup()
   RTC.begin();  // activate clock (doesn't do much)
   Serial.begin(9600); // raspberry pi and atmega328p communication
   mySerial.begin(9600); // bluetooth communication
-  attachInterrupt(RPI_INTERRUPT_PIN, rpiInterrupt, CHANGE);
+  attachInterrupt(RPI_INTERRUPT, rpiInterrupt, FALLING);
   adc_init();
   pinMode(PI_POWER_PIN, OUTPUT);
   fuelGauge.reset();
