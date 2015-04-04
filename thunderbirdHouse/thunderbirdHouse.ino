@@ -17,7 +17,7 @@ SoftwareSerial mySerial(12, 13); // RX, TX
 
 #define DEMO_MODE 1
 #define RPI_INTERRUPT_PIN 3
-#define RELAY_PIN 5
+#define PI_POWER_PIN 5
 #define CLOCK_POWER 9
 #define BATTERY_THRESHOLD 20
 #define SLEEP_FOR_30 4
@@ -27,7 +27,7 @@ uint16_t lastRainVal = 1023;
 float batteryLevel;
 float temperature;
 bool rainStatus;
-volatile bool rpiBooting;
+volatile bool piDelay;
 
 uint8_t sunriseHour = 6;
 uint8_t sunriseMinute = 30;
@@ -116,8 +116,24 @@ void sleep_cycle(int delayVal) {
     myWatchdogEnable ();
 }
 
+void startPi(){
+  digitalWrite(PI_POWER_PIN, HIGH); // wake up raspberry pi
+  piDelay = true;
+  napTime();
+}
+
+void waitForPi(){
+  piDelay = true;
+  napTime();
+}
+
+void shutdownPi(){
+  sleep_cycle(3);
+  digitalWrite(PI_POWER_PIN, LOW); // cut off power to raspberry pi
+}
+
 void napTime() {
-  while (rpiBooting)
+  while (piDelay)
     sleep_cycle(1);
 }
 
@@ -224,7 +240,7 @@ void rpiAtmegaDataTransfer(){
 }
 
 void rpiBooted() {
-  rpiBooting = false;
+  piDelay = false;
 }
 
 /*
@@ -239,7 +255,7 @@ void setup()
   mySerial.begin(9600); // bluetooth communication
   attachInterrupt(RPI_INTERRUPT_PIN, rpiBooted, RISING);
   adc_init();
-  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(PI_POWER_PIN, OUTPUT);
   fuelGauge.reset();
   fuelGauge.quickStart();
   fuelGauge.showConfig();
@@ -254,20 +270,17 @@ void setup()
 void loop()
 {
   if (DEMO_MODE) {
-    digitalWrite(5, HIGH);
-    rpiBooting = true;
     printSensorInfo();
 
     if (batteryLevel >= BATTERY_THRESHOLD) {
-      //wake up raspberry pi
-      napTime();
-      rpiBooting = true;
+      startPi();
       rpiAtmegaDataTransfer(); // talking to raspberry pi
-      napTime();
-    }
-    
-    else
+      waitForPi();
+      shutdownPi();
+    } 
+    else {
       sleep_cycle(HIBERNATE); // battery low, atmega328p is put to sleep for 6 hours then battery level is checked again
+    }
   }
 
   /*Code for future development to run birdhouse in full outdoor mode
