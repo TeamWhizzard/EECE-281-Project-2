@@ -10,13 +10,15 @@
 
 #include <avr/sleep.h>
 #include <avr/wdt.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
 RTC_DS1307 RTC;
 MAX1704 fuelGauge;
 SoftwareSerial mySerial(12, 13); // RX, TX
 
 #define DEMO_MODE 1
-#define RPI_INTERRUPT_PIN 3
+#define RPI_INTERRUPT_PIN 1
 #define PI_POWER_PIN 5
 #define CLOCK_POWER 9
 #define BATTERY_THRESHOLD 20
@@ -116,18 +118,25 @@ void sleep_cycle(int delayVal) {
     myWatchdogEnable ();
 }
 
-void startPi(){
+void startPi() {
   digitalWrite(PI_POWER_PIN, HIGH); // wake up raspberry pi
-  piDelay = true;
-  napTime();
+  //setupInterrupt();
+  //piDelay = true;
+  //napTime();
 }
 
-void waitForPi(){
-  piDelay = true;
-  napTime();
+void waitForPi() {
+  //setupInterrupt();
+  //  piDelay = true;
+  //  napTime();
+  sleep_cycle(8);
+  rpiAtmegaDataTransfer(); // talking to raspberry pi
+  Serial.println("Can you hear me?");
+  mySerial.println("Can you hear me?");
 }
 
-void shutdownPi(){
+void shutdownPi() {
+  napTime();
   sleep_cycle(3);
   digitalWrite(PI_POWER_PIN, LOW); // cut off power to raspberry pi
 }
@@ -154,7 +163,7 @@ void printSensorInfo() {
   // activate I2C
   Wire.begin();
   refreshSensors();
-    printTime();
+  printTime();
 
   mySerial.print("Battery: ");
   mySerial.println(batteryLevel);
@@ -228,20 +237,41 @@ String stringCreate() {
   String rain = String(rainStatus);
   String batt = String(batteryLevel);
   String temp = String(temperature);
-  
+
   String message = rain + "," + batt + "," + temp;
   return message;
 }
 
-void rpiAtmegaDataTransfer(){
+void rpiAtmegaDataTransfer() {
   String sensorInfo = stringCreate();
   Serial.println(sensorInfo); // sends updated sensor readings to the raspberry pi
   mySerial.println(sensorInfo); // prints the sensor message that is sent to the raspberry pi to the serial monitor
 }
 
-void rpiBooted() {
+/*
+*------------------------------------------------------------------------------------------
+* Interrupt Functions
+*------------------------------------------------------------------------------------------
+*/
+void rpiInterrupt() {
   piDelay = false;
 }
+
+//void setupInterrupt() {
+//  DDRB  = 0b11111111;   // All outputs
+//  DDRC  = 0b01111111;   // All outputs (Although we will just use PC0 and PC1)
+//  DDRD  = 0b11111011;   // set PD2 to input
+//  PORTD = 0b00000100;   // set PD2 to high
+//
+//  EIMSK |= (1 << INT0);     // Turns on INT0
+//  EICRA |= (1 << ISC01);    // set INT0 to trigger on ANY logic change
+//
+//  sei();                    // turn on interrupts
+//}
+//
+//ISR (SIG_INTERRUPT0) {
+//  piDelay = false;
+//}
 
 /*
 *------------------------------------------------------------------------------------------
@@ -253,13 +283,13 @@ void setup()
   RTC.begin();  // activate clock (doesn't do much)
   Serial.begin(9600); // raspberry pi and atmega328p communication
   mySerial.begin(9600); // bluetooth communication
-  attachInterrupt(RPI_INTERRUPT_PIN, rpiBooted, RISING);
+  attachInterrupt(RPI_INTERRUPT_PIN, rpiInterrupt, CHANGE);
   adc_init();
   pinMode(PI_POWER_PIN, OUTPUT);
   fuelGauge.reset();
   fuelGauge.quickStart();
   fuelGauge.showConfig();
-  delay(5000); // delay for bluetooth pairing
+  delay(10000); // delay for bluetooth pairing
 }  // end of setup
 
 /*
@@ -273,11 +303,17 @@ void loop()
     printSensorInfo();
 
     if (batteryLevel >= BATTERY_THRESHOLD) {
+      mySerial.println("Starting up raspberry pi");
+      delay(100);
       startPi();
       rpiAtmegaDataTransfer(); // talking to raspberry pi
+      mySerial.println("Waiting for raspberry pi");
+      delay(100);
       waitForPi();
+      mySerial.println("Shutting down raspberry pi");
+      delay(100);
       shutdownPi();
-    } 
+    }
     else {
       sleep_cycle(HIBERNATE); // battery low, atmega328p is put to sleep for 6 hours then battery level is checked again
     }
