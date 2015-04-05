@@ -17,5 +17,5 @@ def sendPushbullet():
 		if(re.search("[\d]{3}\.[\d]{2}\.[\d]{3}\.[\d]{3}", line)):
 			break
 	
-#sendPushbullet()
+sendPushbullet()
 #206.87.112.248

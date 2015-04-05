@@ -7,3 +7,8 @@ Password: awesomeWhiz
 Username: TeamWhizzard
 Email: mammarellatheresa8@gmail.com
 Password: awesomeWhiz
+
+---FTP Server Information---
+Address: ubc.dyndns.org
+Login: teamwhizzard
+Password: awesomeWhiz1

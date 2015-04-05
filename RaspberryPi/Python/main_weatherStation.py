@@ -41,4 +41,4 @@ def weatherStation(rain, temperature):
 	# delete image posted to twitter from local directory
 	os.remove(twitImage)	
 
-weatherStation("f","24")
+#weatherStation("f","24")

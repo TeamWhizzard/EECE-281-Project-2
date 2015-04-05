@@ -11,7 +11,7 @@ def imageMode():
 	pinBirdSensor = 5 # GPIO pin
 	count = 0 # picture count for demo mode
 
-	#GPIO.setmode(GPIO.BCM) # T-cobbler setup in BCM mode
+	GPIO.setmode(GPIO.BCM) # T-cobbler setup in BCM mode
 	GPIO.setup(pinBirdSensor, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Setup GPIO Pin 5 IN
 
 	camera = picamera.PiCamera() # create instance of camera class
@@ -30,4 +30,4 @@ def imageMode():
 
 	camera.close() # conserve resources
 
-imageMode()
+#imageMode()

@@ -3,6 +3,7 @@
 import serial
 import subprocess
 import urllib2
+import time
 
 # custom scripts
 import main_imageMode
@@ -13,13 +14,18 @@ import ip_pushbullet_startup
 usbOff = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/usb_shutdown.sh"
 usbOn = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/usb_startup.sh"
 
-# open serial port
-ser = serial.Serial('/dev/ttyAMA0', 115200) #, timeout=1)
-ser.open() 
-
 # initialize interrupt pin
 pinInterrupt = 10
 GPIO.setup(pinInterrupt, GPIO.out)
+GPIO.setmode(GPIO.BCM) # map for T-cobbler
+
+GPIO.output(pinInterrupt, True) # set high
+time.sleep(0.5)
+GPIO.output(pinInterrupt, False) # send start signal to arduino
+
+# open serial port
+ser = serial.Serial('/dev/ttyAMA0', 9600) #, timeout=1)
+ser.open() 
 
 while True: # read from serial port until command recieved
 	input = ser.readline()
@@ -31,9 +37,9 @@ while True: # read from serial port until command recieved
 			print("Image mode \n")
 		
 			# turn off usb hub for image mode to conserve power
-			off = subprocess.Popen(usbOff, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+			#off = subprocess.Popen(usbOff, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 			main_imageMode.imageMode()
-			on = subprocess.Popen(usbOn, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+			#on = subprocess.Popen(usbOn, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 		print("Weather mode \n") 
 		while True: # confirm internet connection
@@ -43,9 +49,11 @@ while True: # read from serial port until command recieved
 				# wifi not connected
 				time.sleep(0.5) # sleep time in seconds
 			else: # wifi is connected
-				temperature = ser.readline()
-				main_weatherStation.weatherStation(data[0], data[2])
+				main_weatherStation.weatherStation(data[0], data[2]) # rain, temperature
 				break
 
-		GPIO.output(pinInterrupt, True) # send shutdown signal to Arduino
+		GPIO.output(pinInterrupt, True) # set high
+		time.sleep(0.5)
+		GPIO.output(pinInterrupt, false) # send start signal to arduino
+		
 		os.system("sudo shutdown -h now")

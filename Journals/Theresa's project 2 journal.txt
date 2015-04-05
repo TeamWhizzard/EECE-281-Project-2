@@ -38,32 +38,27 @@ and then I currupted everything.. note to self always use shutdown commands :/
 
 -fixed everything from before corruption / added usb shutdown scripts (needs testing for tomorrow)
 
-April 1, 2015
-TODO:
--test main_images script
--test that camera led is turning off (else try controlling via python? see tutorial)
--test / integrate with usb_startup / shutdown scripts
--get arduino communication working http://blog.oscarliang.net/raspberry-pi-and-arduino-connected-serial-gpio/
-python serial - http://pyserial.sourceforge.net/
--add shutdown command to main_images ( on message recieved from arduino)
--get main_switchScript working 
--add more report documentation at some point
-
-Game plan:
 *ALWAYS USE THE SHUTDOWN COMMANDS*
+sudo shutdown -h now
 
-* for now, wifi is always on so we can ssh
+April 1, 2015
+-tested imageMode and USB hub shutdown from yesterday. We found out the USB hub will turn on automatically on restart.
+-got arduino communication working http://blog.oscarliang.net/raspberry-pi-and-arduino-connected-serial-gpio/
+python serial - http://pyserial.sourceforge.net/
+-had problems with camera.. and ip address is not accurate
+-anthony working for a bit on making ip address getting more accurate?
 
-* script on startup to determine which thing to run? -recieve time from arduino
--arduino to rpi communication http://blog.oscarliang.net/raspberry-pi-and-arduino-connected-serial-gpio/
+April 2, 2015
+-started getting ip address from curlmyip.com to increase reliability
+-add timer and shutdown command to main_images http://stackoverflow.com/questions/13293269/how-would-i-stop-a-while-loop-after-some-amount-of-time
+-finished writing main switch script (needs testing)
 
-* write commands for when turned on to post weather report
--connect to wifi
--post local album pics from last 24 hours to imgur
-- get sorted images from imgur to post to twitter https://github.com/alexgisby/imgur-album-downloader
--it should get album, then when number of files in album is low, send push bullet notification
-- get weather data from gpio pins
-- post daily weather report with image to twitter
-- readjust clock (send time to arduino)
+-abandoning imgur for now :( went with ftp idea..
+-get list of files from specified directory (local) http://stackoverflow.com/questions/3207219/how-to-list-all-files-of-a-directory-in-python
+https://docs.python.org/2/library/glob.html
 
-* third maintenance mode signal from arduino to be able to SSH and modify stuff
+-finished main_weatherStation with image handling and twitter - tomorrow weather data processing!
+
+April 3, 2015
+-integration with Steven and Logan and get all software / hardware ready for Wednesday
+-documentation and code commmenting at some point..

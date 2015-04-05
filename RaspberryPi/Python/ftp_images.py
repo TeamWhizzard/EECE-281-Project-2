@@ -34,5 +34,3 @@ def imageControl():
 		# move rpi cameraImages to twitImages
         	print image
         	shutil.move(fullImage, twitImages)
-
-imageControl()
