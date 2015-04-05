@@ -27,6 +27,7 @@ SoftwareSerial mySerial(12, 13); // RX, TX
 #define BATTERY_THRESHOLD 20 // battery threshold set to 20% to prevent battery from getting fully depleted
 
 // Standard sleep cycles
+#define RPI_STARTUP_DELAY 11 // the initial state of rpi gpio pins is unstable, this delay sleeps through the fluctuations
 #define RECHARGE_CYCLE 337 // charge time between photo shoot sessions, equivalent to 45 minutes
 #define HIBERNATE 2700 // charge time for when battery is below 20%, equivalent to 6 hours
 #define NIGHT_TIME 4050 // sleep mode for night time, equivalent to 9 hours (ie. from 8pm to 5am)
@@ -36,7 +37,7 @@ uint16_t lastRainVal = 1023; // set a "last" rain value to compare to, originall
 float batteryLevel;
 float temperature;
 bool rainStatus; // status of the rain, 1 if raining, 0 if not raining
-volatile bool piDelay; // boolean value for exiting infinite loop in naptTime() using an interrupt from the raspberry pi
+volatile int piDelay; // value for exiting infinite loop in naptTime() using an interrupt from the raspberry pi
 
 // defined sunrise and sunset values, 5am for sunrise and 8pm for sunset
 uint8_t sunriseHour = 5;
@@ -132,14 +133,17 @@ uint16_t adc_read(uint8_t ch)
 */
 // turns on raspberry pi and waits for a message back when it is fully awake
 void startPi() {
+  detachInterrupt(RPI_INTERRUPT);
   digitalWrite(PI_POWER_PIN, HIGH); // wake up raspberry pi
-  piDelay = true;
+  sleep_cycle(RPI_STARTUP_DELAY);
+  attachInterrupt(RPI_INTERRUPT, rpiInterrupt, FALLING); // sets interrupt pin to activate on falling edge
+  piDelay = 1;
   napTime(); // sleep until raspberry pi sends interrupt
 }
 
 // waits for raspberry pi to finish so that it can shut it down
 void waitForPi() {
-  piDelay = true;
+  piDelay = 1;
   napTime(); // sleep until raspberry pi sends interrupt
 }
 
@@ -290,8 +294,8 @@ void rpiAtmegaDataTransfer() {
 */
 // interrupt function that changes value of piDelay in order to exite the infinite loop in napTime()
 void rpiInterrupt() {
-  if (millis() > 12000)
-    piDelay = false;
+  sleep_disable();
+  piDelay = 0;
 }
 
 /*
@@ -302,9 +306,8 @@ void rpiInterrupt() {
 void setup()
 {
   RTC.begin();  // activate clock (doesn't do much)
-  Serial.begin(9600); // raspberry pi and atmega328p communication
+  Serial.begin(57600); // raspberry pi and atmega328p communication
   mySerial.begin(9600); // bluetooth communication
-  attachInterrupt(RPI_INTERRUPT, rpiInterrupt, FALLING); // sets interrupt pin to activate on falling edge
   adc_init(); // used to help read analog pins on the atmega328p
   pinMode(PI_POWER_PIN, OUTPUT); // set the pin that turns the latch relay on and off to control the state of the raspberry pi
   
@@ -332,6 +335,7 @@ void loop()
       mySerial.println("Starting up raspberry pi");
       delay(100);
       startPi();
+      delay(100);
       rpiAtmegaDataTransfer(); // talks to raspberry pi
       mySerial.println("Waiting for raspberry pi");
       delay(100);
