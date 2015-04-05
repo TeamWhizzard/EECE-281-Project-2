@@ -23,7 +23,10 @@ SoftwareSerial mySerial(12, 13); // RX, TX
 #define CLOCK_POWER 9
 #define BATTERY_THRESHOLD 20
 #define SLEEP_FOR_30 4
-#define HIBERNATE 2700 // sleep
+#define RECHARGE_CYCLE 337 // charge time between photo shoot sessions, equivalent to 45 minutes
+#define HIBERNATE 2700 // charge time for when battery is below 20%, equivalent to 6 hours
+#define NIGHT_TIME 4500 // sleep mode for night time, equivalent to 10 hours (ie. from 8pm to 6am)
+#define WEEKEND_MODE 21600 // charge time for the weekend, equivalent to 48 hours
 
 uint16_t lastRainVal = 1023;
 float batteryLevel;
@@ -301,21 +304,32 @@ void loop()
     }
   }
 
-  /*Code for future development to run birdhouse in full outdoor mode
+  // Code for future development to run birdhouse in full outdoor mode
+  else {
+    refreshSensors();
+    DateTime now = RTC.now();
 
-      else {
-        // Check if weekday
-        if (now.dayOfWeek() <= 5) {
-          // Check if daytime
-          if ((now.hour() > sunriseHour && now.hour() < sunsetHour) || ((now.hour() == sunriseHour && now.minute() >= sunriseMinute) || (now.hour() == sunsetHour && now.minute() <= sunsetMinute)))
-
-          else {
-
-          }
-
-          // it is night time so sleep a hella lot
-
+    if (batteryLevel >= BATTERY_THRESHOLD) {
+      // Check if weekday
+      if (now.dayOfWeek() <= 5) {
+        // Check if daytime
+        if ((now.hour() > sunriseHour && now.hour() < sunsetHour) || ((now.hour() == sunriseHour && now.minute() >= sunriseMinute) || (now.hour() == sunsetHour && now.minute() <= sunsetMinute))) {
+          startPi();
+          rpiAtmegaDataTransfer(); // talking to raspberry pi
+          waitForPi();
+          shutdownPi();
+          sleep_cycle(RECHARGE_CYCLE); // enter sleep mode for 45 minutes to recharge battery between photo shoot sessions
+        }
+        else {
+          sleep_cycle(NIGHT_TIME); // enter sleep mode for the night time
         }
       }
-    */
+      else {
+        sleep_cycle(WEEKEND_MODE); // enter sleep mode for the weekend to allow time for charging
+      }
+    }
+    else {
+      sleep_cycle(HIBERNATE); // battery low, atmega328p is put to sleep for 6 hours then battery level is checked again
+    }
+  }
 }
