@@ -10,38 +10,45 @@
 
 #include <avr/sleep.h>
 #include <avr/wdt.h>
-#include <avr/io.h>
-#include <avr/interrupt.h>
 
 RTC_DS1307 RTC;
 MAX1704 fuelGauge;
+
+// Set software serial pins for bluetooth connection (mainly used in demo mode)
 SoftwareSerial mySerial(12, 13); // RX, TX
 
+// Set demo mode on and off with values 1 and 0 respectively
 #define DEMO_MODE 1
+
+// Defined pins
 #define RPI_INTERRUPT 1
 #define PI_POWER_PIN 5
-#define CLOCK_POWER 9
-#define BATTERY_THRESHOLD 20
-#define SLEEP_FOR_30 4
+
+#define BATTERY_THRESHOLD 20 // battery threshold set to 20% to prevent battery from getting fully depleted
+
+// Standard sleep cycles
 #define RECHARGE_CYCLE 337 // charge time between photo shoot sessions, equivalent to 45 minutes
 #define HIBERNATE 2700 // charge time for when battery is below 20%, equivalent to 6 hours
-#define NIGHT_TIME 4500 // sleep mode for night time, equivalent to 10 hours (ie. from 8pm to 6am)
+#define NIGHT_TIME 4050 // sleep mode for night time, equivalent to 9 hours (ie. from 8pm to 5am)
 #define WEEKEND_MODE 21600 // charge time for the weekend, equivalent to 48 hours
 
-uint16_t lastRainVal = 1023;
+uint16_t lastRainVal = 1023; // set a "last" rain value to compare to, originally max level of dryness
 float batteryLevel;
 float temperature;
-bool rainStatus;
-volatile bool piDelay;
+bool rainStatus; // status of the rain, 1 if raining, 0 if not raining
+volatile bool piDelay; // boolean value for exiting infinite loop in naptTime() using an interrupt from the raspberry pi
 
-uint8_t sunriseHour = 6;
-uint8_t sunriseMinute = 30;
+// defined sunrise and sunset values, 5am for sunrise and 8pm for sunset
+uint8_t sunriseHour = 5;
+uint8_t sunriseMinute = 0;
 uint8_t sunsetHour = 20;
-uint8_t sunsetMinute = 00;
+uint8_t sunsetMinute = 0;
 
 /*
 *------------------------------------------------------------------------------------------
-* Watchdog Timer
+* Watchdog Timer Functions
+*    - ISR (WDT_vect)
+*    - myWatchdogEnable()
 *------------------------------------------------------------------------------------------
 */
 // watchdog interrupt
@@ -78,7 +85,9 @@ void myWatchdogEnable()
 
 /*
 *------------------------------------------------------------------------------------------
-* ADC Conversion
+* ADC Conversion Functions
+*    - adc_init()
+*    - adc_read(uint8_t ch)
 *------------------------------------------------------------------------------------------
 */
 void adc_init()
@@ -114,47 +123,63 @@ uint16_t adc_read(uint8_t ch)
 /*
 *------------------------------------------------------------------------------------------
 * Sleep Control Function
+*    - napTime()
+*    - shutdownPi()
+*    - sleep_cycle(int delayVal)
+*    - startPi()
+*    - waitForPi()
 *------------------------------------------------------------------------------------------
 */
+// turns on raspberry pi and waits for a message back when it is fully awake
+void startPi() {
+  digitalWrite(PI_POWER_PIN, HIGH); // wake up raspberry pi
+  piDelay = true;
+  napTime(); // sleep until raspberry pi sends interrupt
+}
+
+// waits for raspberry pi to finish so that it can shut it down
+void waitForPi() {
+  piDelay = true;
+  napTime(); // sleep until raspberry pi sends interrupt
+}
+
+// waits 24 seconds for raspberry pi to prepared to be shutdown
+void shutdownPi() {
+  sleep_cycle(3);
+  digitalWrite(PI_POWER_PIN, LOW); // cut off power to raspberry pi
+}
+
+// sleep until raspberry pi sends interrupt
+void napTime() {
+  while (piDelay)
+    sleep_cycle(1); // sleep for 8 seconds until interrupt changes value of piDelay to 0
+}
+
+// enables the watchdog sleep cycle, delayVal=1 is equivalent to 8 seconds of sleep
 void sleep_cycle(int delayVal) {
   for (int i = 0; i < delayVal; i++)
     myWatchdogEnable ();
 }
 
-void startPi() {
-  digitalWrite(PI_POWER_PIN, HIGH); // wake up raspberry pi
-  piDelay = true;
-  napTime();
-}
-
-void waitForPi() {
-  Serial.println("Can you hear me?");
-  mySerial.println("Can you hear me?");
-  piDelay = true;
-  napTime();
-}
-
-void shutdownPi() {
-  sleep_cycle(3);
-  mySerial.println("attempted to turn of RPI");
-  digitalWrite(PI_POWER_PIN, LOW); // cut off power to raspberry pi
-}
-
-void napTime() {
-  while (piDelay)
-    sleep_cycle(1);
-}
-
 /*
 *------------------------------------------------------------------------------------------
 * Sensor Functions
+*    - checkForRain()
+*    - getBatteryLevel()
+*    - getTemperature()
+*    - printSensorInfo()
+*    - printTime()
+*    - refreshSensors()
+*    - rpiAtmegaDataTransfer()
+*    - stringCreate()
 *------------------------------------------------------------------------------------------
 */
-//Refreshes all the values from each sensor
+// refreshes all the values from each sensor
 void refreshSensors() {
   // activate I2C
   Wire.begin();
-
+  
+  // refresh all sensors
   getBatteryLevel();
   getTemperature();
   rainStatus = checkForRain();
@@ -166,7 +191,7 @@ void refreshSensors() {
   digitalWrite (A5, LOW);
 }
 
-//Prints updated sensor data to the serial monitor via bluetooth
+// prints updated sensor data to the serial monitor via bluetooth
 void printSensorInfo() {
   refreshSensors();
   printTime();
@@ -185,12 +210,12 @@ void printSensorInfo() {
   mySerial.println("");
 }
 
-// Report battery level
+// report battery level
 void getBatteryLevel() {
   batteryLevel = fuelGauge.stateOfCharge();
 }
 
-// Report temperature
+// report temperature
 void getTemperature() {
   adc_read(2); // move the ADC to the LM35
   delay(10); // delay to allow the reading to settle
@@ -199,12 +224,16 @@ void getTemperature() {
   delay(100); // allow the ADC to settle
 }
 
-// Report if raining
+// report if raining
 bool checkForRain() {
   adc_read(3); // move the ADC to the rain sensor
   delay(10); // delay to allow the reading to settle
   uint16_t newRainVal = adc_read(3);
 
+ /* checks for reasonable amount of rain, and also determines if there has been enough of a change in resistance
+  * between new and last readings to see if it has stopped raining (ie. if it stops it should theoretically dry
+  * by a factor of around 200)
+  */
   if (newRainVal < 900 && newRainVal < lastRainVal + 200) {
     lastRainVal = newRainVal;
     return true;
@@ -215,6 +244,7 @@ bool checkForRain() {
   }
 }
 
+// prints the current date and time to the serial monitor via bluetooth
 void printTime() {
   DateTime now = RTC.now();
   mySerial.print(now.year(), DEC);
@@ -232,16 +262,20 @@ void printTime() {
   delay(1000);
 }
 
+// creates a single string out of all the sensor data to be sent over to the raspberry pi
 String stringCreate() {
   refreshSensors();
   String rain = String(rainStatus);
   String batt = String(batteryLevel);
   String temp = String(temperature);
 
-  String message = rain + "," + batt + "," + temp;
+  String message = rain + "," + batt + "," + temp; // combines all three strings into one
   return message;
 }
 
+/* prints the string with sensor information to be read by the raspberry pi and also to be
+ * seen on the serial monitor in demo mode
+ */
 void rpiAtmegaDataTransfer() {
   String sensorInfo = stringCreate();
   Serial.println(sensorInfo); // sends updated sensor readings to the raspberry pi
@@ -251,8 +285,10 @@ void rpiAtmegaDataTransfer() {
 /*
 *------------------------------------------------------------------------------------------
 * Interrupt Functions
+*    - rpiInterrupt()
 *------------------------------------------------------------------------------------------
 */
+// interrupt function that changes value of piDelay in order to exite the infinite loop in napTime()
 void rpiInterrupt() {
   if (millis() > 12000)
     piDelay = false;
@@ -268,12 +304,15 @@ void setup()
   RTC.begin();  // activate clock (doesn't do much)
   Serial.begin(9600); // raspberry pi and atmega328p communication
   mySerial.begin(9600); // bluetooth communication
-  attachInterrupt(RPI_INTERRUPT, rpiInterrupt, FALLING);
-  adc_init();
-  pinMode(PI_POWER_PIN, OUTPUT);
+  attachInterrupt(RPI_INTERRUPT, rpiInterrupt, FALLING); // sets interrupt pin to activate on falling edge
+  adc_init(); // used to help read analog pins on the atmega328p
+  pinMode(PI_POWER_PIN, OUTPUT); // set the pin that turns the latch relay on and off to control the state of the raspberry pi
+  
+  // configures fuel gauge to be ready for use
   fuelGauge.reset();
   fuelGauge.quickStart();
   fuelGauge.showConfig();
+  
   delay(10000); // delay for bluetooth pairing
 }  // end of setup
 
@@ -284,14 +323,16 @@ void setup()
 */
 void loop()
 {
+  // code for demo mode
   if (DEMO_MODE) {
     printSensorInfo();
-
+    
+    // checks to see if battery level is above threshold before turning on the raspberry pi
     if (batteryLevel >= BATTERY_THRESHOLD) {
       mySerial.println("Starting up raspberry pi");
       delay(100);
       startPi();
-      rpiAtmegaDataTransfer(); // talking to raspberry pi
+      rpiAtmegaDataTransfer(); // talks to raspberry pi
       mySerial.println("Waiting for raspberry pi");
       delay(100);
       waitForPi();
@@ -299,20 +340,21 @@ void loop()
       delay(100);
       shutdownPi();
     }
+    // sleeps the atmega328p if battery level is below threshold
     else {
       sleep_cycle(HIBERNATE); // battery low, atmega328p is put to sleep for 6 hours then battery level is checked again
     }
   }
 
-  // Code for future development to run birdhouse in full outdoor mode
+  // code to run birdhouse in full outdoor mode
   else {
     refreshSensors();
     DateTime now = RTC.now();
 
     if (batteryLevel >= BATTERY_THRESHOLD) {
-      // Check if weekday
+      // check if weekday
       if (now.dayOfWeek() <= 5) {
-        // Check if daytime
+        // check if daytime
         if ((now.hour() > sunriseHour && now.hour() < sunsetHour) || ((now.hour() == sunriseHour && now.minute() >= sunriseMinute) || (now.hour() == sunsetHour && now.minute() <= sunsetMinute))) {
           startPi();
           rpiAtmegaDataTransfer(); // talking to raspberry pi
@@ -320,14 +362,17 @@ void loop()
           shutdownPi();
           sleep_cycle(RECHARGE_CYCLE); // enter sleep mode for 45 minutes to recharge battery between photo shoot sessions
         }
+        // sleep for 9 hours if night time
         else {
           sleep_cycle(NIGHT_TIME); // enter sleep mode for the night time
         }
       }
+      // sleep for 48 hours if weekend
       else {
         sleep_cycle(WEEKEND_MODE); // enter sleep mode for the weekend to allow time for charging
       }
     }
+    // sleeps the atmega328p if battery level is below threshold
     else {
       sleep_cycle(HIBERNATE); // battery low, atmega328p is put to sleep for 6 hours then battery level is checked again
     }
