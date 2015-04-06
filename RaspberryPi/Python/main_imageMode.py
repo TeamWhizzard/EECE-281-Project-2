@@ -19,7 +19,7 @@ def imageMode():
 
 	while (count < 5):
   		if (GPIO.input(pinBirdSensor) == 1): # sensor has been triggered
-
+			print("image triggered")
 			# create file name with current date and time    
 			i = datetime.now()
     			now = i.strftime('%Y%m%d-%H%M%S')

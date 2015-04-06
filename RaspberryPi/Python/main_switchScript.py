@@ -4,6 +4,7 @@ import serial
 import subprocess
 import urllib2
 import time
+import RPi.GPIO as GPIO
 
 # custom scripts
 import main_imageMode
@@ -15,16 +16,18 @@ usbOff = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/usb_shutdown.sh"
 usbOn = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/usb_startup.sh"
 
 # initialize interrupt pin
-pinInterrupt = 10
-GPIO.setup(pinInterrupt, GPIO.out)
+pinInterrupt = 6
 GPIO.setmode(GPIO.BCM) # map for T-cobbler
+GPIO.setup(pinInterrupt, GPIO.OUT)
 
 GPIO.output(pinInterrupt, True) # set high
-time.sleep(0.5)
+time.sleep(2)
 GPIO.output(pinInterrupt, False) # send start signal to arduino
 
+print("Arduino signal sent")
+
 # open serial port
-ser = serial.Serial('/dev/ttyAMA0', 9600) #, timeout=1)
+ser = serial.Serial('/dev/ttyAMA0', 57600) #, timeout=1)
 ser.open() 
 
 while True: # read from serial port until command recieved
