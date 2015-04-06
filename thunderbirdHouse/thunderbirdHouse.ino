@@ -27,7 +27,8 @@ SoftwareSerial mySerial(12, 13); // RX, TX
 #define BATTERY_THRESHOLD 20 // battery threshold set to 20% to prevent battery from getting fully depleted
 
 // Standard sleep cycles
-#define RPI_STARTUP_DELAY 11 // the initial state of rpi gpio pins is unstable, this delay sleeps through the fluctuations
+#define RPI_STARTUP_DELAY 2 // the initial state of rpi gpio pins is unstable, this delay sleeps through the fluctuations
+#define DEMO_RESTART_CYCLE 2 // charge time between photo shoot sessions in demo mode, equivalent to 16 seconds
 #define RECHARGE_CYCLE 337 // charge time between photo shoot sessions, equivalent to 45 minutes
 #define HIBERNATE 2700 // charge time for when battery is below 20%, equivalent to 6 hours
 #define NIGHT_TIME 4050 // sleep mode for night time, equivalent to 9 hours (ie. from 8pm to 5am)
@@ -133,10 +134,10 @@ uint16_t adc_read(uint8_t ch)
 */
 // turns on raspberry pi and waits for a message back when it is fully awake
 void startPi() {
-  detachInterrupt(RPI_INTERRUPT);
   digitalWrite(PI_POWER_PIN, HIGH); // wake up raspberry pi
   sleep_cycle(RPI_STARTUP_DELAY);
-  attachInterrupt(RPI_INTERRUPT, rpiInterrupt, FALLING); // sets interrupt pin to activate on falling edge
+  EIFR |= 0x01; // clears the interrupt flag
+  mySerial.println("Interrupt flag cleared!");
   piDelay = 1;
   napTime(); // sleep until raspberry pi sends interrupt
 }
@@ -182,7 +183,7 @@ void sleep_cycle(int delayVal) {
 void refreshSensors() {
   // activate I2C
   Wire.begin();
-  
+
   // refresh all sensors
   getBatteryLevel();
   getTemperature();
@@ -222,10 +223,9 @@ void getBatteryLevel() {
 // report temperature
 void getTemperature() {
   adc_read(2); // move the ADC to the LM35
-  delay(10); // delay to allow the reading to settle
+  delay(100); // delay to allow the reading to settle
   uint16_t temperatureRaw = adc_read(2); // take the actual temperature reading we use
   temperature =  temperatureRaw * 0.48828125;
-  delay(100); // allow the ADC to settle
 }
 
 // report if raining
@@ -234,10 +234,10 @@ bool checkForRain() {
   delay(10); // delay to allow the reading to settle
   uint16_t newRainVal = adc_read(3);
 
- /* checks for reasonable amount of rain, and also determines if there has been enough of a change in resistance
-  * between new and last readings to see if it has stopped raining (ie. if it stops it should theoretically dry
-  * by a factor of around 200)
-  */
+  /* checks for reasonable amount of rain, and also determines if there has been enough of a change in resistance
+   * between new and last readings to see if it has stopped raining (ie. if it stops it should theoretically dry
+   * by a factor of around 200)
+   */
   if (newRainVal < 900 && newRainVal < lastRainVal + 200) {
     lastRainVal = newRainVal;
     return true;
@@ -263,7 +263,6 @@ void printTime() {
   mySerial.print(':');
   mySerial.print(now.second(), DEC);
   mySerial.println();
-  delay(1000);
 }
 
 // creates a single string out of all the sensor data to be sent over to the raspberry pi
@@ -296,6 +295,7 @@ void rpiAtmegaDataTransfer() {
 void rpiInterrupt() {
   sleep_disable();
   piDelay = 0;
+  mySerial.println("ISR Toggled");
 }
 
 /*
@@ -310,12 +310,13 @@ void setup()
   mySerial.begin(9600); // bluetooth communication
   adc_init(); // used to help read analog pins on the atmega328p
   pinMode(PI_POWER_PIN, OUTPUT); // set the pin that turns the latch relay on and off to control the state of the raspberry pi
+  attachInterrupt(RPI_INTERRUPT, rpiInterrupt, FALLING); // sets interrupt pin to activate on falling edge
   
   // configures fuel gauge to be ready for use
   fuelGauge.reset();
   fuelGauge.quickStart();
   fuelGauge.showConfig();
-  
+
   delay(10000); // delay for bluetooth pairing
 }  // end of setup
 
@@ -329,20 +330,18 @@ void loop()
   // code for demo mode
   if (DEMO_MODE) {
     printSensorInfo();
-    
+
     // checks to see if battery level is above threshold before turning on the raspberry pi
     if (batteryLevel >= BATTERY_THRESHOLD) {
       mySerial.println("Starting up raspberry pi");
-      delay(100);
       startPi();
-      delay(100);
       rpiAtmegaDataTransfer(); // talks to raspberry pi
       mySerial.println("Waiting for raspberry pi");
-      delay(100);
       waitForPi();
       mySerial.println("Shutting down raspberry pi");
-      delay(100);
       shutdownPi();
+      mySerial.println("Restarting cycle");
+      sleep_cycle(DEMO_RESTART_CYCLE); // enter sleep mode for 16 seconds between photo shoot sessions
     }
     // sleeps the atmega328p if battery level is below threshold
     else {
