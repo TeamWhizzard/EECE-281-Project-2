@@ -24,7 +24,7 @@ SoftwareSerial mySerial(12, 13); // RX, TX
 #define RPI_INTERRUPT 1
 #define PI_POWER_PIN 5
 
-#define BATTERY_THRESHOLD 20 // battery threshold set to 20% to prevent battery from getting fully depleted
+#define BATTERY_THRESHOLD 10//20 // battery threshold set to 20% to prevent battery from getting fully depleted
 
 // Standard sleep cycles
 #define RPI_STARTUP_DELAY 2 // the initial state of rpi gpio pins is unstable, this delay sleeps through the fluctuations
