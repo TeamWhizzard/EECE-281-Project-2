@@ -36,6 +36,7 @@ def weatherStation(rain, temperature):
 	status += "with a temperature of " + temperature + " degrees Celsius."
 
 	# post weather report to twitter
+	print("Post to Twitter")
 	api.update_with_media(twitImage, status=status)
 	
 	# delete image posted to twitter from local directory

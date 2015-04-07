@@ -5,6 +5,7 @@ import subprocess
 import urllib2
 import time
 import RPi.GPIO as GPIO
+import os
 
 # custom scripts
 import main_imageMode
@@ -21,22 +22,37 @@ GPIO.setmode(GPIO.BCM) # map for T-cobbler
 GPIO.setup(pinInterrupt, GPIO.OUT)
 
 GPIO.output(pinInterrupt, True) # set high
-time.sleep(2)
-GPIO.output(pinInterrupt, False) # send start signal to arduino
+GPIO.output(pinInterrupt, False)
 
-print("Arduino signal sent")
+print("Arduino signal sent\n")
 
 # open serial port
-ser = serial.Serial('/dev/ttyAMA0', 57600) #, timeout=1)
+
+ser = serial.Serial('/dev/ttyAMA0', 115200) #, timeout=1)
 ser.open() 
+print("Serial port open\n")
 
 while True: # read from serial port until command recieved
-	input = ser.readline()
-	print(input + "\n") # for testing
-		
-	data = input.split(",")
-	if (data[0] is "1" or "0"): # Arduino requested image mode
-		if (data[0] is "0"): # take pictures if not raining
+
+# default values in case pi doesnt recieve serial correctly
+	rain = "0"
+	battery = "100"
+	temp = "20"
+
+	try:
+		greeting = ser.readline()
+		rain = ser.readline().strip()
+		battery = ser.readline().strip()
+		temp = ser.readline().strip()
+	except: 
+		pass
+	
+	print("rain " + rain)
+	print("battery " + battery)
+	print("temp " + temp + "\n")
+	
+	if (rain == "1" or rain == "0"): # Arduino requested image mode
+		if (rain in "0"): # take pictures if not raining
 			print("Image mode \n")
 		
 			# turn off usb hub for image mode to conserve power
@@ -52,11 +68,14 @@ while True: # read from serial port until command recieved
 				# wifi not connected
 				time.sleep(0.5) # sleep time in seconds
 			else: # wifi is connected
-				main_weatherStation.weatherStation(data[0], data[2]) # rain, temperature
+				main_weatherStation.weatherStation(rain, temp) # rain, temperature
 				break
 
+		ser.close()
+		print("set high")
 		GPIO.output(pinInterrupt, True) # set high
-		time.sleep(0.5)
-		GPIO.output(pinInterrupt, false) # send start signal to arduino
+		print("set low")
+		GPIO.output(pinInterrupt, False) # send start signal to arduino
 		
+		print("Shutting down")
 		os.system("sudo shutdown -h now")

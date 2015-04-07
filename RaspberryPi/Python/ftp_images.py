@@ -8,6 +8,8 @@ cameraImages = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/images/cameraImag
 twitImages = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/images/twitImages"
 
 def imageControl():
+	print("File transfer step")
+
 	ftp = FTP('ubc.dyndns.org') # connect to host
 	ftp.login('teamWhizzard','awesomeWhiz1') # authentication
 
@@ -32,5 +34,7 @@ def imageControl():
 		file.close()
 	
 		# move rpi cameraImages to twitImages
-        	print image
+        	print (image)
         	shutil.move(fullImage, twitImages)
+
+	print("\n")
