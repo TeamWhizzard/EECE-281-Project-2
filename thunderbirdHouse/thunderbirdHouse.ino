@@ -212,6 +212,9 @@ void printSensorInfo() {
   else
     mySerial.println("Rain");
 
+  // TEST
+  mySerial.println("Rain level: " + lastRainVal);
+  
   mySerial.println("");
 }
 
@@ -236,7 +239,7 @@ bool checkForRain() {
 
   /* checks for reasonable amount of rain, and also determines if there has been enough of a change in resistance
    * between new and last readings to see if it has stopped raining (ie. if it stops it should theoretically dry
-   * by a factor of around 200)
+   * by a difference of around 200)
    */
   if (newRainVal < 900 && newRainVal < lastRainVal + 200) {
     lastRainVal = newRainVal;
@@ -287,13 +290,16 @@ void rpiAtmegaDataTransfer() {
   
 
   // serial greeting
-  String greeting = "Hello, Pi!";
+  String greeting = "Hello Pi!";
   Serial.println(greeting);
   mySerial.println(greeting);
 
-    //print rain
+  //print rain
   Serial.println(rainStatus);
   mySerial.println(rainStatus);
+  
+  // TEST
+  mySerial.println("Rain level: " + lastRainVal);
   
   // print battery
   Serial.println(batteryLevel);
