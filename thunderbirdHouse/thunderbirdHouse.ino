@@ -281,14 +281,24 @@ String stringCreate() {
  */
 void rpiAtmegaDataTransfer() {
   //String sensorInfo = stringCreate();
+ //delay(5000);
+  
   refreshSensors();
   
-  //print rain
+
+  // serial greeting
+  String greeting = "Hello, Pi!";
+  Serial.println(greeting);
+  mySerial.println(greeting);
+
+    //print rain
   Serial.println(rainStatus);
   mySerial.println(rainStatus);
+  
   // print battery
   Serial.println(batteryLevel);
   mySerial.println(batteryLevel);
+
   // print temperature
   Serial.println(temperature);
   mySerial.println(temperature);
@@ -348,8 +358,16 @@ void loop()
       mySerial.println("Starting up raspberry pi");
       startPi();
       rpiAtmegaDataTransfer(); // talks to raspberry pi
-      mySerial.println("Waiting for raspberry pi");
-      waitForPi();
+      
+      while(1) {
+        mySerial.println("Waiting for raspberry pi"); // put back
+        waitForPi(); // put back
+        mySerial.print("Sending serial data");
+        rpiAtmegaDataTransfer();
+      }
+      
+      
+      
       mySerial.println("Shutting down raspberry pi");
       shutdownPi();
       mySerial.println("Restarting cycle");
