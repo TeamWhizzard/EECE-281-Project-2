@@ -280,9 +280,21 @@ String stringCreate() {
  * seen on the serial monitor in demo mode
  */
 void rpiAtmegaDataTransfer() {
-  String sensorInfo = stringCreate();
-  Serial.println(sensorInfo); // sends updated sensor readings to the raspberry pi
-  mySerial.println(sensorInfo); // prints the sensor message that is sent to the raspberry pi to the serial monitor
+  //String sensorInfo = stringCreate();
+  refreshSensors();
+  
+  //print rain
+  Serial.println(rainStatus);
+  mySerial.println(rainStatus);
+  // print battery
+  Serial.println(batteryLevel);
+  mySerial.println(batteryLevel);
+  // print temperature
+  Serial.println(temperature);
+  mySerial.println(temperature);
+  
+  //Serial.println(sensorInfo); // sends updated sensor readings to the raspberry pi
+  //mySerial.println(sensorInfo); // prints the sensor message that is sent to the raspberry pi to the serial monitor
 }
 
 /*
