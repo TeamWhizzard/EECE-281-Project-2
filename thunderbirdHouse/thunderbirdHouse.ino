@@ -211,9 +211,6 @@ void printSensorInfo() {
     mySerial.println("Clear Skies");
   else
     mySerial.println("Rain");
-
-  // TEST
-  mySerial.println("Rain level: " + lastRainVal);
   
   mySerial.println("");
 }
@@ -298,9 +295,6 @@ void rpiAtmegaDataTransfer() {
   Serial.println(rainStatus);
   mySerial.println(rainStatus);
   
-  // TEST
-  mySerial.println("Rain level: " + lastRainVal);
-  
   // print battery
   Serial.println(batteryLevel);
   mySerial.println(batteryLevel);
@@ -364,16 +358,8 @@ void loop()
       mySerial.println("Starting up raspberry pi");
       startPi();
       rpiAtmegaDataTransfer(); // talks to raspberry pi
-      
-      while(1) {
-        mySerial.println("Waiting for raspberry pi"); // put back
-        waitForPi(); // put back
-        mySerial.print("Sending serial data");
-        rpiAtmegaDataTransfer();
-      }
-      
-      
-      
+      mySerial.println("Waiting for raspberry pi");
+      waitForPi();
       mySerial.println("Shutting down raspberry pi");
       shutdownPi();
       mySerial.println("Restarting cycle");
