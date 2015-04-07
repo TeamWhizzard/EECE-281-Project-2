@@ -30,6 +30,7 @@ http://www.raspberrypi-spy.co.uk/2013/05/how-to-disable-the-red-led-on-the-pi-ca
 There is an "on demand" CPU feature however that adjusts the CPU frequency depending on how busy it is. I set this for good measure. Might help a little..
 See the Power Saving section of this document:
 http://wiki.stocksy.co.uk/wiki/Raspberry_Pi_Setup#Performance_or_Power_Saving
+http://babaawesam.com/2014/01/24/power-saving-tips-for-raspberry-pi/
 
 and then I currupted everything.. note to self always use shutdown commands :/
 -back to square 1..
@@ -53,12 +54,32 @@ April 2, 2015
 -add timer and shutdown command to main_images http://stackoverflow.com/questions/13293269/how-would-i-stop-a-while-loop-after-some-amount-of-time
 -finished writing main switch script (needs testing)
 
--abandoning imgur for now :( went with ftp idea..
+-abandoning imgur for now :( went with ftp idea.. https://docs.python.org/2/library/ftplib.html
 -get list of files from specified directory (local) http://stackoverflow.com/questions/3207219/how-to-list-all-files-of-a-directory-in-python
 https://docs.python.org/2/library/glob.html
 
 -finished main_weatherStation with image handling and twitter - tomorrow weather data processing!
 
 April 3, 2015
--integration with Steven and Logan and get all software / hardware ready for Wednesday
+-update pi code for demo mode
+-commented code
+-fix github
+-yay integration :)
+
+April 4, 2015
+-shopping for birdhouse food and supplies
+-tested as much rpi code as possible
+-rebooted sd card from corruption again :(
+-going to study code to help out hardware team with errors
+
+April 6, 2015
+-update rpi firmware
+-install script to set pin configurations to low on default. 
+http://www.raspberrypi.org/documentation/configuration/pin-configuration.md
+
+TODO:
+-gpio pin default configuration (didnt work)
+http://www.raspberrypi.org/documentation/configuration/pin-configuration.md
+-making interrupts and serial work .. and testing everything .. and making bird house blah blah blah
+
 -documentation and code commmenting at some point..

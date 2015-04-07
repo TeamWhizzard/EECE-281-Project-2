@@ -1,0 +1,8 @@
+*.d
+*.o
+*.elf
+*.elf
+thunderbirdHouse/Visual Micro/Compile.vmps.xml
+thunderbirdHouse/Visual Micro/Configuration.Debug.vmps.xml
+thunderbirdHouse/Visual Micro/Upload.vmps.xml
+*.atsuo
