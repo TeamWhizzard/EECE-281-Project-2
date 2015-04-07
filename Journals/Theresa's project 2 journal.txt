@@ -78,6 +78,8 @@ April 6, 2015
 http://www.raspberrypi.org/documentation/configuration/pin-configuration.md
 
 TODO:
--gpio pin default configuration
+-gpio pin default configuration (didnt work)
 http://www.raspberrypi.org/documentation/configuration/pin-configuration.md
+-making interrupts and serial work .. and testing everything .. and making bird house blah blah blah
+
 -documentation and code commmenting at some point..
