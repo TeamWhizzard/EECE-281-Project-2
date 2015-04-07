@@ -306,7 +306,7 @@ void rpiInterrupt() {
 void setup()
 {
   RTC.begin();  // activate clock (doesn't do much)
-  Serial.begin(57600); // raspberry pi and atmega328p communication
+  Serial.begin(115200); // raspberry pi and atmega328p communication
   mySerial.begin(9600); // bluetooth communication
   adc_init(); // used to help read analog pins on the atmega328p
   pinMode(PI_POWER_PIN, OUTPUT); // set the pin that turns the latch relay on and off to control the state of the raspberry pi
