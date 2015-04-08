@@ -67,7 +67,7 @@ while True: # read from serial port until data received
 			#on = subprocess.Popen(usbOn, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 		print("Weather mode \n") 
-		'''while True: # confirm internet connection
+		while True: # confirm internet connection
 			try:
 				urllib2.urlopen("http://www.google.com").close()
 			except urllib2.URLError:
@@ -77,10 +77,10 @@ while True: # read from serial port until data received
 				print(datetime.datetime.now())
 				ip_pushbullet_startup.sendPushbullet()
 				main_weatherStation.weatherStation(rain, temp) # rain, temperature
-				break'''
+				break
 		
 		# send interrupt pulse to wake ATmega328p
-		ser1 = serial.Serial('/dev/TTYAMA0',115200)
+		ser1 = serial.Serial('/dev/ttyAMA0',115200)
 		ser1.open()
 		ser1.write("Trigger Interrupt")
 		GPIO.output(pinInterrupt, True) # set high
