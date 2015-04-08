@@ -23,8 +23,8 @@ def imageMode():
 			# create file name with current date and time    
 			i = datetime.now()
 
-    		now = i.strftime('%Y%m%d-%H%M%S')
-    		photo_name = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/images/cameraImages/" + now + '.jpg'
+    			now = i.strftime('%Y%m%d-%H%M%S')
+    			photo_name = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/images/cameraImages/" + now + '.jpg'
 			
 			# take photo and increase photo count
 			camera.capture(photo_name)

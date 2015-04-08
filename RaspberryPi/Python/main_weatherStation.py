@@ -29,18 +29,18 @@ def weatherStation(rain, temperature):
 
 	# generate weather data report
 	status = "Rise and shine, Thunderbirds! "
-	if (rain is "t"):
+	if (rain is "1"):
 		status += "It's a rainy day at UBC, "
 	else:
 		status += "It's a sunny day at UBC, "
 
 	status += "with a temperature of " + temperature + " degrees Celsius."
-
+	print(status+"\n")
 	# post weather report to twitter
-	print("Post to Twitter")
+	print("Post to Twitter \n")
+	print(twitImage)
 	api.update_with_media(twitImage, status=status)
-	
 	# delete image posted to twitter from local directory
 	os.remove(twitImage)	
 
-#weatherStation("f","24")
+#weatherStation("0","24")

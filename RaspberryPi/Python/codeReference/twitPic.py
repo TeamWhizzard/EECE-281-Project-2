@@ -10,7 +10,7 @@ camera = picamera.PiCamera() # create instance of camera class
 
 i = datetime.now()               #take time and date for filename  
 now = i.strftime('%Y%m%d-%H%M%S')  
-photo_name = "images/" + now + '.jpg'  
+photo_name = now + '.jpg'  
 
 camera.capture(photo_name)
 
@@ -25,7 +25,7 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth) 
 
 # Send the tweet with photo  
-photo_path = '/home/pi/EECE-281-Project-2/RaspberryPi/Python/' + photo_name  
+photo_path = '/home/pi/EECE-281-Project-2/RaspberryPi/Python/codeReference/' + photo_name  
 status = "Greetings, from Team Whizzard's birds!"  
 api.update_with_media(photo_path, status=status) 
 

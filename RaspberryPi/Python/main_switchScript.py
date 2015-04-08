@@ -33,7 +33,7 @@ ser.open()
 print("Serial port open\n")
 
 # send interrupt confirmation message to ATmega328p via serial
-ser.write("Hello Arduino!")
+ser.write("Hello ATmega!")
 print("Interrupt confirmation sent")
 
 while True: # read from serial port until data received
@@ -67,25 +67,24 @@ while True: # read from serial port until data received
 			#on = subprocess.Popen(usbOn, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 		print("Weather mode \n") 
-		while True: # confirm internet connection
+		'''while True: # confirm internet connection
 			try:
 				urllib2.urlopen("http://www.google.com").close()
 			except urllib2.URLError:
 				# wifi not connected
 				time.sleep(0.5) # sleep time in seconds
 			else: # wifi is connected
-				print(datetime.datetime.now()
+				print(datetime.datetime.now())
 				ip_pushbullet_startup.sendPushbullet()
 				main_weatherStation.weatherStation(rain, temp) # rain, temperature
-				break
-
-		ser.close()
+				break'''
 		
 		# send interrupt pulse to wake ATmega328p
+		ser1 = serial.Serial('/dev/TTYAMA0',115200)
+		ser1.open()
+		ser1.write("Trigger Interrupt")
 		GPIO.output(pinInterrupt, True) # set high
 		GPIO.output(pinInterrupt, False) # send start signal to arduino
-		print("Trigger Interrupt\n")
-		
 		# Shut down RPi
 		print("Shutting down")
 		os.system("sudo shutdown -h now")
