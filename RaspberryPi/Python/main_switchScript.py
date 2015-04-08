@@ -23,14 +23,15 @@ GPIO.setup(pinInterrupt, GPIO.OUT)
 
 GPIO.output(pinInterrupt, True) # set high
 GPIO.output(pinInterrupt, False)
-
 print("Arduino signal sent\n")
 
 # open serial port
-
 ser = serial.Serial('/dev/ttyAMA0', 115200) #, timeout=1)
 ser.open() 
 print("Serial port open\n")
+
+ser.write("Hello Arduino!")
+print("Interrupt confirmation sent")
 
 while True: # read from serial port until command recieved
 
