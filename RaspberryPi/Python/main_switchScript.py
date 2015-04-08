@@ -17,8 +17,14 @@ import ip_pushbullet_startup
 usbOff = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/usb_shutdown.sh"
 usbOn = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/usb_startup.sh"
 
+# open serial port
+ser = serial.Serial('/dev/ttyAMA0', 115200) #, timeout=1)
+ser.open() 
+print("Serial port open\n")
+
 # initialize interrupt pin
 pinInterrupt = 6       # GPIO6
+pinInterruptConfirm = 13 # GPIO13
 GPIO.setmode(GPIO.BCM) # map for T-cobbler
 GPIO.setup(pinInterrupt, GPIO.OUT)
 
@@ -27,10 +33,9 @@ GPIO.output(pinInterrupt, True)
 GPIO.output(pinInterrupt, False)
 print("Trigger Interrupt\n")
 
-# open serial port
-ser = serial.Serial('/dev/ttyAMA0', 115200) #, timeout=1)
-ser.open() 
-print("Serial port open\n")
+GPIO.output(pinInterruptConfirm, True)
+GPIO.output(pinInterruptConfirm, False)
+print("Interrupt confirmation\n")
 
 # send interrupt confirmation message to ATmega328p via serial
 ser.write("Hello ATmega!")
@@ -55,6 +60,8 @@ while True: # read from serial port until data received
 	print("battery " + battery)
 	print("temp " + temp + "\n")
 	
+	 ip_pushbullet_startup.startupPushbullet()
+	
 	if (rain == "1" or rain == "0"): # ATmega328p requested image mode
 		if (rain in "0"): # take pictures if not raining
 			print("Image mode \n")
@@ -75,16 +82,17 @@ while True: # read from serial port until data received
 				time.sleep(0.5) # sleep time in seconds
 			else: # wifi is connected
 				print(datetime.datetime.now())
-				ip_pushbullet_startup.sendPushbullet()
+			
 				main_weatherStation.weatherStation(rain, temp) # rain, temperature
 				break
 		
-		# send interrupt pulse to wake ATmega328p
-		ser1 = serial.Serial('/dev/ttyAMA0',115200)
-		ser1.open()
-		ser1.write("Trigger Interrupt")
 		GPIO.output(pinInterrupt, True) # set high
 		GPIO.output(pinInterrupt, False) # send start signal to arduino
+
+		GPIO.output(pinInterruptConfirm, True)
+		GPIO.output(pinInterruptConfirm, False)
+		print("Interrupt confirmation\n")
+		
 		# Shut down RPi
 		print("Shutting down")
 		os.system("sudo shutdown -h now")

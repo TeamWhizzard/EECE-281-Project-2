@@ -23,8 +23,8 @@ SoftwareSerial mySerial(12, 13); // RX, TX
 // Defined pins
 #define RPI_INTERRUPT 1
 #define PI_POWER_PIN 5
-
-#define BATTERY_THRESHOLD 10//20 // battery threshold set to 20% to prevent battery from getting fully depleted
+#define RPI_INTERRUPT_CONF 11
+#define BATTERY_THRESHOLD 20 // battery threshold set to 20% to prevent battery from getting fully depleted
 
 // Standard sleep cycles
 #define RPI_STARTUP_DELAY 2 // the initial state of rpi gpio pins is unstable, this delay sleeps through the fluctuations
@@ -34,9 +34,9 @@ SoftwareSerial mySerial(12, 13); // RX, TX
 #define NIGHT_TIME 4050 // sleep mode for night time, equivalent to 9 hours (ie. from 8pm to 5am)
 #define WEEKEND_MODE 21600 // charge time for the weekend, equivalent to 48 hours
 
-uint16_t lastRainVal = 1023; // set a "last" rain value to compare to, originally max level of dryness
+int lastRainVal = 1023; // set a "last" rain value to compare to, originally max level of dryness
 float batteryLevel;
-float temperature;
+float tempReading;
 bool rainStatus; // status of the rain, 1 if raining, 0 if not raining
 volatile int piDelay; // value for exiting infinite loop in naptTime() using an interrupt from the raspberry pi
 
@@ -68,10 +68,10 @@ void myWatchdogEnable()
   // set interrupt mode and an interval
   WDTCSR = bit (WDIE) | bit (WDP3) | bit (WDP0);    // set WDIE, and 8 seconds delay
   wdt_reset();  // pat the dog
-
+ 
   // disable ADC
   ADCSRA = 0;
-
+  
   // ready to sleep
   set_sleep_mode (SLEEP_MODE_PWR_DOWN);
   sleep_enable();
@@ -135,21 +135,21 @@ uint16_t adc_read(uint8_t ch)
 // turns on raspberry pi and waits for a message back when it is fully awake
 void startPi() {
   digitalWrite(PI_POWER_PIN, HIGH); // wake up raspberry pi
+  printSensorInfo();
   sleep_cycle(RPI_STARTUP_DELAY);
-  
+
   while (1) { // loops until interrupt is confirmed by RPi
     EIFR |= 0x01; // clears the interrupt flag
     mySerial.println("Interrupt flag cleared!");
+    //printSensorInfo();
     piDelay = 1;
     napTime(); // sleep until raspberry pi sends interrupt
 
     long time = millis();
     while ((time + 2000) > millis()) { // try to recieve serial message from rpi to confirm interrupt
-      if(Serial.available() > 0) {
-         mySerial.print("Recieved serial: ");
-         while(Serial.available() > 0) mySerial.print(String(Serial.read()));
-         mySerial.println();
-         return;
+      if(digitalRead(RPI_INTERRUPT_CONF == 0)) {
+         mySerial.println("Recieved serial confirmation");
+         return; // continues loop() cycle
       }
     }
   }
@@ -157,8 +157,19 @@ void startPi() {
 
 // waits for raspberry pi to finish so that it can shut it down
 void waitForPi() {
-  piDelay = 1;
-  napTime(); // sleep until raspberry pi sends interrupt
+  while(1) {
+    EIFR |= 0x01; // clears the interrupt flag
+    piDelay = 1;
+    napTime(); // sleep until raspberry pi sends interrupt
+    
+    long time = millis();
+    while ((time + 2000) > millis()) { // try to recieve serial message from rpi to confirm interrupt
+      if(digitalRead(RPI_INTERRUPT_CONF) == 0) {
+         mySerial.println("Recieved interrupt confirmation");
+         return; // continues loop() cycle
+      }
+    }
+  }
 }
 
 // waits 24 seconds for raspberry pi to prepared to be shutdown
@@ -218,7 +229,7 @@ void printSensorInfo() {
   mySerial.println(batteryLevel);
 
   mySerial.print("Temperature: ");
-  mySerial.println(temperature);
+  mySerial.println(tempReading);
 
   if (rainStatus == false)
     mySerial.println("Clear Skies");
@@ -235,23 +246,25 @@ void getBatteryLevel() {
 
 // report temperature
 void getTemperature() {
-  adc_read(2); // move the ADC to the LM35
-  delay(100); // delay to allow the reading to settle
-  uint16_t temperatureRaw = adc_read(2); // take the actual temperature reading we use
-  temperature =  temperatureRaw * 0.48828125;
+  analogRead(2); // move the ADC to the LM35
+  //delay(10); // delay to allow the reading to settle
+  //uint16_t temperatureRaw = adc_read(2); // take the actual temperature reading we use
+  
+  float temperatureRaw = analogRead(2);
+  tempReading =  temperatureRaw * 0.48828125;
 }
 
 // report if raining
 bool checkForRain() {
-  adc_read(3); // move the ADC to the rain sensor
+  analogRead(3); // move the ADC to the rain sensor
   delay(10); // delay to allow the reading to settle
-  uint16_t newRainVal = adc_read(3);
+  int newRainVal = analogRead(3);
 
   /* checks for reasonable amount of rain, and also determines if there has been enough of a change in resistance
    * between new and last readings to see if it has stopped raining (ie. if it stops it should theoretically dry
    * by a difference of around 200)
    */
-  if (newRainVal < 900 && newRainVal < lastRainVal + 200) {
+  if (newRainVal < 900) {
     lastRainVal = newRainVal;
     return true;
   }
@@ -280,10 +293,10 @@ void printTime() {
 
 // creates a single string out of all the sensor data to be sent over to the raspberry pi
 String stringCreate() {
-  refreshSensors();
+  //refreshSensors();
   String rain = String(rainStatus);
   String batt = String(batteryLevel);
-  String temp = String(temperature);
+  String temp = String(tempReading);
 
   String message = rain + "," + batt + "," + temp; // combines all three strings into one
   return message;
@@ -296,8 +309,7 @@ void rpiAtmegaDataTransfer() {
   //String sensorInfo = stringCreate();
  //delay(5000);
   
-  refreshSensors();
-  
+  //refreshSensors();
 
   // serial greeting
   String greeting = "Hello Pi!";
@@ -313,8 +325,8 @@ void rpiAtmegaDataTransfer() {
   mySerial.println(batteryLevel);
 
   // print temperature
-  Serial.println(temperature);
-  mySerial.println(temperature);
+  Serial.println(tempReading);
+  mySerial.println(tempReading);
   
   //Serial.println(sensorInfo); // sends updated sensor readings to the raspberry pi
   //mySerial.println(sensorInfo); // prints the sensor message that is sent to the raspberry pi to the serial monitor
@@ -345,6 +357,7 @@ void setup()
   mySerial.begin(9600); // bluetooth communication
   adc_init(); // used to help read analog pins on the atmega328p
   pinMode(PI_POWER_PIN, OUTPUT); // set the pin that turns the latch relay on and off to control the state of the raspberry pi
+  pinMode(RPI_INTERRUPT_CONF, LOW); // set pin high to confirm interrupt
   attachInterrupt(RPI_INTERRUPT, rpiInterrupt, FALLING); // sets interrupt pin to activate on falling edge
   
   // configures fuel gauge to be ready for use

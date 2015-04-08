@@ -18,7 +18,7 @@ def imageMode():
 	camera.exposure_settings = 'auto' # sets to auto-adjust exposure settings
 
 	while (count < 5):
-  		if (GPIO.input(pinBirdSensor) == 1): # sensor has been triggered
+  		if (GPIO.input(pinBirdSensor) == 0): # sensor has been triggered
 			print("Image Triggered")
 			# create file name with current date and time    
 			i = datetime.now()
