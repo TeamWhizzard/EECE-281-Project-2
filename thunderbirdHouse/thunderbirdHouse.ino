@@ -136,10 +136,23 @@ uint16_t adc_read(uint8_t ch)
 void startPi() {
   digitalWrite(PI_POWER_PIN, HIGH); // wake up raspberry pi
   sleep_cycle(RPI_STARTUP_DELAY);
-  EIFR |= 0x01; // clears the interrupt flag
-  mySerial.println("Interrupt flag cleared!");
-  piDelay = 1;
-  napTime(); // sleep until raspberry pi sends interrupt
+  
+  while (1) { // loops until interrupt is confirmed by RPi
+    EIFR |= 0x01; // clears the interrupt flag
+    mySerial.println("Interrupt flag cleared!");
+    piDelay = 1;
+    napTime(); // sleep until raspberry pi sends interrupt
+
+    long time = millis();
+    while ((time + 2000) > millis()) { // try to recieve serial message from rpi to confirm interrupt
+      if(Serial.available() > 0) {
+         mySerial.print("Recieved serial: ");
+         while(Serial.available() > 0) mySerial.print(String(Serial.read()));
+         mySerial.println();
+         return;
+      }
+    }
+  }
 }
 
 // waits for raspberry pi to finish so that it can shut it down
@@ -313,7 +326,7 @@ void rpiAtmegaDataTransfer() {
 *    - rpiInterrupt()
 *------------------------------------------------------------------------------------------
 */
-// interrupt function that changes value of piDelay in order to exite the infinite loop in napTime()
+// interrupt function that changes value of piDelay in order to exit the infinite loop in napTime()
 void rpiInterrupt() {
   sleep_disable();
   piDelay = 0;
@@ -352,7 +365,7 @@ void loop()
   // code for demo mode
   if (DEMO_MODE) {
     printSensorInfo();
-
+    
     // checks to see if battery level is above threshold before turning on the raspberry pi
     if (batteryLevel >= BATTERY_THRESHOLD) {
       mySerial.println("Starting up raspberry pi");

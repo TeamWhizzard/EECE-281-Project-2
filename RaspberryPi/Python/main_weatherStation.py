@@ -7,7 +7,8 @@ import os
 import ftp_images
 
 def weatherStation(rain, temperature):
-	ftp_images.imageControl() # image ftp processing
+	# image ftp processing
+	ftp_images.imageControl() 
 
 	# get oldest image in twitImages directory
 	source = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/images/twitImages"

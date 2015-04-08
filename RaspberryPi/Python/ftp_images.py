@@ -4,6 +4,7 @@ import os
 import shutil
 from ftplib import FTP
 
+# image directories
 cameraImages = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/images/cameraImages"
 twitImages = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/images/twitImages"
 
@@ -16,7 +17,6 @@ def imageControl():
 	ftp.cwd('Birdhouse') # navigate to birdhouse directory
 
 	# compare current twitImages to server images delete sorted images
-
 	piTwitList =  os.listdir(twitImages) # returns list files 
 	ftpList = ftp.nlst() # list of images in FTP
 
@@ -34,7 +34,7 @@ def imageControl():
 		file.close()
 	
 		# move rpi cameraImages to twitImages
-        	print (image)
-        	shutil.move(fullImage, twitImages)
+        print (image)
+        shutil.move(fullImage, twitImages)
 
 	print("\n")
