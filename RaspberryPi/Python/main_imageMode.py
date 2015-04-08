@@ -24,12 +24,13 @@ def imageMode():
 			i = datetime.now()
 
     		now = i.strftime('%Y%m%d-%H%M%S')
-    		photo_name = "images/cameraImages/" + now + '.jpg'
+    		photo_name = "/home/pi/EECE-281-Project-2/RaspberryPi/Python/images/cameraImages/" + now + '.jpg'
 			
 			# take photo and increase photo count
 			camera.capture(photo_name)
 			count += 1
-
+			time.sleep(1)
+			
 	camera.close() # conserve resources
 
 #imageMode()

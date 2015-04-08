@@ -6,6 +6,7 @@ import urllib2
 import time
 import RPi.GPIO as GPIO
 import os
+import datetime
 
 # custom scripts
 import main_imageMode
@@ -59,11 +60,11 @@ while True: # read from serial port until data received
 			print("Image mode \n")
 		
 			# turn off usb hub for image mode to conserve power
-			print("Shut off USB port\n")
-			off = subprocess.Popen(usbOff, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+			#print("Shut off USB port\n")
+			#off = subprocess.Popen(usbOff, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 			main_imageMode.imageMode()
-			print("Turn on USB port\n")
-			on = subprocess.Popen(usbOn, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+			#print("Turn on USB port\n")
+			#on = subprocess.Popen(usbOn, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 		print("Weather mode \n") 
 		while True: # confirm internet connection
@@ -73,6 +74,8 @@ while True: # read from serial port until data received
 				# wifi not connected
 				time.sleep(0.5) # sleep time in seconds
 			else: # wifi is connected
+				print(datetime.datetime.now()
+				ip_pushbullet_startup.sendPushbullet()
 				main_weatherStation.weatherStation(rain, temp) # rain, temperature
 				break
 

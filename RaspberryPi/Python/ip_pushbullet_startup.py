@@ -16,5 +16,5 @@ def sendPushbullet():
 		# breaks loop if PushBullet message has sent successfully
 		# regex to search for what constitutes an IP Address 
 		# if the message has an IP address, internet connection works
-		if(re.search("[\d]{3}\.[\d]{2}\.[\d]{3}\.[\d]{3}", line)):
+		if(re.search("[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}", line)):
 			break
