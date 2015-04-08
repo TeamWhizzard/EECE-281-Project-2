@@ -22,6 +22,7 @@ def imageMode():
 			print("Image Triggered")
 			# create file name with current date and time    
 			i = datetime.now()
+
     		now = i.strftime('%Y%m%d-%H%M%S')
     		photo_name = "images/cameraImages/" + now + '.jpg'
 			
